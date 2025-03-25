@@ -24,6 +24,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.rvnow.model.RV
 import com.example.rvnow.model.RVType
+import com.example.rvnow.ProfileScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -65,13 +66,13 @@ fun RVNowApp() {
 
 @Composable
 fun BottomNavBar(navController: NavController) {
-    val items = listOf("Home", "Rental", "Sales","Owner", "Signin|up")
+    val items = listOf("Home", "Rental", "Sales", "Owner", "Profile") // 修改这里
     val icons = listOf(
         Icons.Default.Home,
         Icons.Default.DirectionsCar,
         Icons.Filled.DirectionsCar,
         Icons.Default.Person,
-        Icons.Default.Login)
+        Icons.Default.Person) // 修改这里，使用Person图标作为Profile
 
     NavigationBar {
         items.forEachIndexed { index, screen ->
@@ -80,7 +81,12 @@ fun BottomNavBar(navController: NavController) {
                 label = { Text(screen) },
                 selected = false, // Change based on state
                 onClick = {
-                    navController.navigate(screen.lowercase()) // Navigate to the screen
+                    // 修改导航逻辑，确保"Profile"导航到"profile"路由
+                    val route = when (screen) {
+                        "Profile" -> "profile"
+                        else -> screen.lowercase()
+                    }
+                    navController.navigate(route)
                 }
             )
         }
