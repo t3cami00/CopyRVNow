@@ -1,121 +1,353 @@
 package com.example.rvnow
+
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.example.rvnow.model.RV
+import com.example.rvnow.model.RVType
+import com.example.rvnow.viewmodels.AuthViewModel
+import com.example.rvnow.viewmodels.RVViewModel
+import androidx.compose.runtime.livedata.observeAsState
+import com.google.firebase.auth.FirebaseUser
 
 @Composable
-fun ProfileScreen(
-    rvs: List<RV>,  // Pass the RV list directly
-    navController: NavController
-) {
-    var searchQuery by remember { mutableStateOf("") } // Search state
+fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel, rvViewModel: RVViewModel,) {
+    val rvList by rvViewModel.rvs.collectAsState()
+//    val userInfo by rvViewModel.rvs.collectAsState()
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        // Search Bar
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            label = { Text("Search RVs in profile") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+
+        Button(onClick = {
+            // Call the logout function from the AuthViewModel
+            authViewModel.logout()
+
+            // Navigate to the login screen after logging out
+            navController.navigate("Signin|up") {
+                popUpTo("Signin|up") { inclusive = true } // Clear the back stack
+            }
+        }) {
+            Text(text = "Logout")
+        }
+
+        // 用户信息区域
+        Spacer(modifier = Modifier.height(32.dp))
+        UserInfoSection(authViewModel)
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // 收藏和发布区域 - 增加间距为150%
+        Column(verticalArrangement = Arrangement.spacedBy(36.dp)) {
+            FavoriteSection(
+                title = "Rental Favorites",
+                count = 2,
+                items = rvList.filter { it.type == RVType.Rental }.take(2)
+            )
+
+            // 改进的分割线设计
+            CustomDivider()
+
+            FavoriteSection(
+                title = "Purchase Favorites",
+                count = 2,
+                items = rvList.filter { it.type == RVType.Sales }.take(2)
+            )
+
+            // 改进的分割线设计
+            CustomDivider()
+
+            PublishedSection(rvs = rvList.filter { it.type == RVType.Sales }.take(2))
+        }
+    }
+}
+
+// 新增：美观的自定义分割线组件
+@Composable
+private fun CustomDivider() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(24.dp)
+            .padding(vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        // 渐变背景的分割线
+        Box(
+            modifier = Modifier
+                .height(1.dp)
+                .fillMaxWidth(0.9f)
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                            Color.Transparent
+                        )
+                    )
+                )
         )
+
+        // 或者使用带图标的更现代设计
+        /*
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(1.dp)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.4f))
+            )
+            Icon(
+                imageVector = Icons.Default.Star,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(horizontal = 8.dp).size(16.dp)
+            )
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(1.dp)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.4f))
+            )
+        }
+        */
+    }
+}
+
+@Composable
+private fun UserInfoSection(authViewModel: AuthViewModel,) {
+
+    val userInfo by authViewModel.userInfo.observeAsState()
+    val fullName by authViewModel.fullName.observeAsState()
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+
+        // 用户头像
+        Box(
+            modifier = Modifier
+                .size(160.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primaryContainer)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(80.dp)
+                    .align(Alignment.Center),
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Filtered List of RVs
-        val filteredRVs = rvs.filter {
-            it.name.contains(searchQuery, ignoreCase = true)
+        // 用户信息
+        userInfo?.let {
+            Text(
+                text = fullName ?: it.displayName ?: "No Name",// Use displayName if available, otherwise fallback to "No Name"
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = it.email ?: "No Email", // Use email if available, otherwise fallback to "No Email"
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
+        } ?: run {
+            Text(
+                text = "No user information available",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
         }
 
-        LazyColumn {
-            items(filteredRVs) { rv ->
-                RVItem(rv = rv)
+        // Text(
+        ////            text = it.displayName ?: "No Name",,
+        ////            style = MaterialTheme.typography.headlineMedium,
+        ////            fontWeight = FontWeight.Bold
+        ////        )
+        ////        Text(
+        ////            text = userInfo.email,
+        ////            style = MaterialTheme.typography.bodyLarge,
+        ////            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+        ////        )
+        ////
+        ////        Spacer(modifier = Modifier.height(16.dp))
+//
+        // Edit按钮
+        Button(
+            onClick = {},
+            modifier = Modifier
+                .width(200.dp)
+                .height(48.dp),
+            shape = RoundedCornerShape(24.dp)
+        ) {
+            Text("Edit", fontSize = 16.sp)
+        }
+    }
+}
+
+@Composable
+private fun FavoriteSection(title: String, count: Int, items: List<RV>) {
+    Column {
+        // 标题行
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "$count Favorites",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // 项目列表
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            items.forEach { rv ->
+                RVItemCard(rv = rv)
             }
         }
     }
 }
 
+@Composable
+private fun PublishedSection(rvs: List<RV>) {
+    Column {
+        // 标题行
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Published RVs",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "${rvs.size} Published",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
+        }
 
+        Spacer(modifier = Modifier.height(12.dp))
 
+        // 项目列表
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            rvs.forEach { rv ->
+                RVItemCard(rv = rv)
+            }
+        }
+    }
+}
 
 @Composable
-fun RVItem3(rv: RV) {
+private fun RVItemCard(rv: RV) {
+    val cardHeight = (160 * 0.8).dp // 原始高度的80%
+    val imageWidth = cardHeight * 1.2f // 宽高比1.2:1
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
-        shape = RoundedCornerShape(8.dp)
+            .height(cardHeight),
+        shape = RoundedCornerShape(12.dp)
     ) {
-        Column {
-            rv.imageUrl?.let { imagePath ->
+        Row {
+            // 图片区域 - 添加四周圆角
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(imageWidth)
+                    .clip(RoundedCornerShape(
+                        topStart = 12.dp,
+                        bottomStart = 12.dp,
+                        topEnd = 12.dp,
+                        bottomEnd = 12.dp
+                    ))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            ) {
                 Image(
-                    painter = rememberImagePainter(data = rv.imageUrl),
-                    contentDescription = rv.name ?: "Unknown Title",
+                    painter = rememberAsyncImagePainter(rv.imageUrl),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentScale = ContentScale.Crop
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(
+                            topStart = 12.dp,
+                            bottomStart = 12.dp,
+                            topEnd = 12.dp,
+                            bottomEnd = 12.dp
+                        ))
                 )
-//                Image(
-//                    painter = rememberImagePainter(
-//                        data = "./images/Pho Bo(Beef Pho)1.jpg",
-//                    ),
-//                    contentDescription = rv.title ?: movie.name,
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(200.dp),
-//                    contentScale = ContentScale.Crop
-//                )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = rv.name ?: "Unknown Title",
-                modifier = Modifier.padding(8.dp),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = rv.description,
-                modifier = Modifier.padding(8.dp),
-                fontSize = 14.sp,
-                maxLines = 3
-            )
-
-//            rv.release_date?.let { releaseDate ->
-//                Spacer(modifier = Modifier.height(4.dp))
-//                Text(
-//                    text = "Release Date: $releaseDate",
-//                    modifier = Modifier.padding(8.dp),
-//                    fontSize = 12.sp,
-//                    color = Color.Gray
-//                )
-//            }
+            // 文字区域
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(12.dp)
+                    .weight(1f)
+            ) {
+                Text(
+                    text = rv.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = rv.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
