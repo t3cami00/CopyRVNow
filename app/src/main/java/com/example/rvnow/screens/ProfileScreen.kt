@@ -11,6 +11,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,22 +23,43 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.rvnow.model.RV
 import com.example.rvnow.model.RVType
+import com.example.rvnow.viewmodels.AuthViewModel
+import com.example.rvnow.viewmodels.RVViewModel
+import androidx.compose.runtime.livedata.observeAsState
+import com.google.firebase.auth.FirebaseUser
 
 @Composable
-fun ProfileScreen(navController: NavController, rvs: List<RV>) {
+fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel, rvViewModel: RVViewModel,) {
+    val rvList by rvViewModel.rvs.collectAsState()
+//    val userInfo by rvViewModel.rvs.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp)
             .verticalScroll(rememberScrollState())
     ) {
+
+        Button(onClick = {
+            // Call the logout function from the AuthViewModel
+            authViewModel.logout()
+
+            // Navigate to the login screen after logging out
+            navController.navigate("Signin|up") {
+                popUpTo("Signin|up") { inclusive = true } // Clear the back stack
+            }
+        }) {
+            Text(text = "Logout")
+        }
+
         // 用户信息区域
         Spacer(modifier = Modifier.height(32.dp))
-        UserInfoSection()
+        UserInfoSection(authViewModel)
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -45,7 +68,7 @@ fun ProfileScreen(navController: NavController, rvs: List<RV>) {
             FavoriteSection(
                 title = "Rental Favorites",
                 count = 2,
-                items = rvs.filter { it.type == RVType.Rental }.take(2)
+                items = rvList.filter { it.type == RVType.Rental }.take(2)
             )
 
             // 改进的分割线设计
@@ -54,13 +77,13 @@ fun ProfileScreen(navController: NavController, rvs: List<RV>) {
             FavoriteSection(
                 title = "Purchase Favorites",
                 count = 2,
-                items = rvs.filter { it.type == RVType.Sales }.take(2)
+                items = rvList.filter { it.type == RVType.Sales }.take(2)
             )
 
             // 改进的分割线设计
             CustomDivider()
 
-            PublishedSection(rvs = rvs.filter { it.type == RVType.Sales }.take(2))
+            PublishedSection(rvs = rvList.filter { it.type == RVType.Sales }.take(2))
         }
     }
 }
@@ -124,11 +147,16 @@ private fun CustomDivider() {
 }
 
 @Composable
-private fun UserInfoSection() {
+private fun UserInfoSection(authViewModel: AuthViewModel,) {
+
+    val userInfo by authViewModel.userInfo.observeAsState()
+    val fullName by authViewModel.fullName.observeAsState()
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+
         // 用户头像
         Box(
             modifier = Modifier
@@ -149,19 +177,38 @@ private fun UserInfoSection() {
         Spacer(modifier = Modifier.height(16.dp))
 
         // 用户信息
-        Text(
-            text = "John Doe",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "john.doe@example.com",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-        )
+        userInfo?.let {
+            Text(
+                text = fullName ?: it.displayName ?: "No Name",// Use displayName if available, otherwise fallback to "No Name"
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = it.email ?: "No Email", // Use email if available, otherwise fallback to "No Email"
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
+        } ?: run {
+            Text(
+                text = "No user information available",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
+        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
+        // Text(
+        ////            text = it.displayName ?: "No Name",,
+        ////            style = MaterialTheme.typography.headlineMedium,
+        ////            fontWeight = FontWeight.Bold
+        ////        )
+        ////        Text(
+        ////            text = userInfo.email,
+        ////            style = MaterialTheme.typography.bodyLarge,
+        ////            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+        ////        )
+        ////
+        ////        Spacer(modifier = Modifier.height(16.dp))
+//
         // Edit按钮
         Button(
             onClick = {},
