@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "878769474664",
+    "project_id": "rvnow-72045",
+    "storage_bucket": "rvnow-72045.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:878769474664:android:374571cc8b3d2bf5a67fdd",
+        "android_client_info": {
+          "package_name": "com.example.rvnow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYxCGK4FDcPWYW6_2aqep-wPNRmR8XCPA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

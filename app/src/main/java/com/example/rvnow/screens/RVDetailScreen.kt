@@ -15,20 +15,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.rvnow.model.RV
+import com.example.rvnow.viewmodels.RVViewModel
 
 
 @Composable
-fun RVDetailScreen(rvId: Int, rvs: List<RV>, navController: NavController) {
+fun RVDetailScreen(rvId: String, rvViewModel: RVViewModel, navController: NavController) {
     // Find the RV by id
-    val rv = rvs.firstOrNull { it.id == rvId }
+    val rvList by rvViewModel.rvs.collectAsState()
+    val rv = rvList.firstOrNull { it.id == rvId }
 
     rv?.let {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -53,7 +58,7 @@ fun RVDetailScreen(rvId: Int, rvs: List<RV>, navController: NavController) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Price: \$${it.price}",
+                text = "Price: \$${it.pricePerDay}",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
