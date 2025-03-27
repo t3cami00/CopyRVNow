@@ -212,7 +212,12 @@ fun RentalScreen(
                 .clickable { startDatePickerDialog.show() } // Apply clickable to the Box
         ) {
             Button(
-                onClick = { isSearchPerformed = true },
+                onClick = {
+                    isSearchPerformed = true
+                    drivingType = ""
+                    startDate = ""
+                    endDate = ""
+                    place = ""},
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Search")
@@ -277,12 +282,14 @@ fun RentalScreen(
                     Log.d("FilterCheck", "RV: ${rv.id} is valid: $overlaps")
 
                     overlaps // This should return a Boolean here
+
                 } else {
                     true
                 }
 
                 // Ensure that `dateValid` is a Boolean (condition should be true or false)
                 dateValid
+
             }
         } else {
             // If no search is performed, display all RVs for sale.
