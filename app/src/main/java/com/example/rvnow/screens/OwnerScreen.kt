@@ -1,34 +1,20 @@
 package com.example.rvnow.screens
 
-import android.app.DatePickerDialog
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,8 +35,6 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.rvnow.model.RV
-//import com.example.rvnow.api.RVInformation.addallRV
-import java.util.Calendar
 import com.example.rvnow.viewmodels.RVViewModel
 import java.util.*
 import com.google.firebase.auth.FirebaseAuth
@@ -58,7 +42,7 @@ import android.widget.Toast
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
-//import androidx.compose.material3.Checkbox
+import com.google.firebase.Timestamp
 
 @Composable
 fun OwnerScreen(navController: NavController, rvViewModel: RVViewModel = viewModel()) {
@@ -68,12 +52,20 @@ fun OwnerScreen(navController: NavController, rvViewModel: RVViewModel = viewMod
     var place by remember { mutableStateOf("") }
     var imageUrl by remember { mutableStateOf("") }
     var isForSale by remember { mutableStateOf(false) }
-    var isPopular by remember { mutableStateOf(false) }
 
+    var isForRental by remember { mutableStateOf(false) }
+
+
+//    var additionalImages by remember { mutableStateOf(mutableListOf<String>()) }
+//    var additionalImages by remember { mutableStateOf<List<String>>(emptyList()) }
+    var additionalImages by remember { mutableStateOf<List<String>>(emptyList()) }
+
+// List of additional images
+    var newImageUrl by remember { mutableStateOf("") }
     val context = LocalContext.current
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     val image1 = rememberAsyncImagePainter("file:///android_asset/images/11.png")
-
+//    val additionalImages = additionalImages.toList()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -148,6 +140,75 @@ fun OwnerScreen(navController: NavController, rvViewModel: RVViewModel = viewMod
                 modifier = Modifier.fillMaxWidth()
             )
 
+            OutlinedTextField(
+                value = place,
+                onValueChange = { place = it },
+                label = { Text("Kilometer Limitation per Day") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+
+            Column {
+                // Add new image URL input field
+                OutlinedTextField(
+                    value = newImageUrl,
+                    onValueChange = { newImageUrl = it },
+                    label = { Text("Enter Additional Image URL") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Button(
+                    onClick = {
+
+                        if (newImageUrl.isNotEmpty()) {
+                            additionalImages = additionalImages + newImageUrl// Add URL to list
+                            newImageUrl = "" // Clear the input field
+                        }
+                    },
+                    modifier = Modifier.padding(top = 8.dp)
+                ) {
+                    Text("Add Image URL")
+                }
+
+                // Display the added image URLs
+                additionalImages.forEach { imageUrl ->
+                    Text(imageUrl, modifier = Modifier.fillMaxWidth().padding(4.dp))
+                }
+            }
+
+            // Button to add the image URL to the list
+//            Button(
+//                onClick = {
+//                    if (newImageUrl.isNotEmpty()) {
+//                        additionalImages.add(newImageUrl) // Directly add the new image URL
+//                        newImageUrl = "" // Clear input field after adding
+//                    }
+//                },
+//                modifier = Modifier.padding(top = 8.dp)
+//            ) {
+//                Text("Add Image URL")
+//            }
+//            var additionalImages by remember { mutableStateOf(mutableListOf<String>()) }
+            // Display the added image URLs
+//            LazyColumn(
+//                modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+//            ) {
+//
+//                    Row(
+//                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+//                        horizontalArrangement = Arrangement.SpaceBetween
+//                    ) {
+//                        Text("more images")
+//                        // Button to delete an image URL
+//                        IconButton(onClick = {
+////                            additionalImages.removeAt(imageUrl) // Directly remove the URL
+//                        }) {
+//                            Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
+//                        }
+//
+//                }
+//            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -162,8 +223,8 @@ fun OwnerScreen(navController: NavController, rvViewModel: RVViewModel = viewMod
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
-                        checked = isPopular,
-                        onCheckedChange = { isPopular = it }
+                        checked = isForRental,
+                        onCheckedChange = { isForRental = it }
                     )
                     Text(text = "For Rental")
                 }
@@ -172,21 +233,41 @@ fun OwnerScreen(navController: NavController, rvViewModel: RVViewModel = viewMod
             Button(
                 onClick = {
                     if (name.isNotEmpty() && description.isNotEmpty() && price.isNotEmpty() && place.isNotEmpty()) {
+                        val priceValue = price.toDoubleOrNull()
+                        if (priceValue == null) {
+                            Toast.makeText(context, "Invalid price format", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+
                         val newRV = RV(
                             id = UUID.randomUUID().toString(),
                             name = name,
                             description = description,
-                            pricePerDay = price.toDouble(),
+                            pricePerDay = priceValue,
                             place = place,
                             imageUrl = imageUrl,
                             ownerId = userId,
                             isForSale = isForSale,
-                            isPopular = isPopular
+                            isForRental = isForRental,
+                            additionalImages = additionalImages, // Corrected to use the current list
+                            insurance = emptyMap(),
+                            driverLicenceRequired = "",
+                            kilometerLimitation = 0,
+                            status = "Available",
+                            createdAt = Timestamp.now(),
+                            bookedDates = emptyList()
                         )
 
-                        // Call ViewModel function to add RV
-                        rvViewModel.addRV(newRV)
-
+                        rvViewModel.addRV(newRV) // Calls ViewModel function
+                        name =""
+                        description=""
+                        price=""
+                        place=""
+                        imageUrl=""
+                        isForSale=false
+                        isForRental=false
+                        newImageUrl=""
+                        additionalImages = emptyList()
                     } else {
                         Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                     }
@@ -195,7 +276,216 @@ fun OwnerScreen(navController: NavController, rvViewModel: RVViewModel = viewMod
             ) {
                 Text("Submit RV")
             }
+
         }
     }
 }
 
+//
+//
+//
+//
+//
+//@Composable
+//fun OwnerScreen(navController: NavController, rvViewModel: RVViewModel = viewModel()) {
+//    var name by remember { mutableStateOf("") }
+//    var description by remember { mutableStateOf("") }
+//    var price by remember { mutableStateOf("") }
+//    var place by remember { mutableStateOf("") }
+//    var imageUrl by remember { mutableStateOf("") }
+//    var isForSale by remember { mutableStateOf(false) }
+//    var isPopular by remember { mutableStateOf(false) }
+//
+//    var additionalImages by remember { mutableStateOf(mutableListOf<String>()) } // List of additional images
+//    var newImageUrl by remember { mutableStateOf("") }
+//    val context = LocalContext.current
+//    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+//    val image1 = rememberAsyncImagePainter("file:///android_asset/images/11.png")
+//
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(16.dp),
+//        verticalArrangement = Arrangement.spacedBy(10.dp)
+//    ) {
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(250.dp)
+//                .background(color = Color.White)
+//        ) {
+//            Image(
+//                painter = image1,
+//                contentDescription = "RV Image",
+//                modifier = Modifier.fillMaxSize(),
+//                contentScale = ContentScale.Crop
+//            )
+//
+//            Text(
+//                text = "Welcome to RVNow",
+//                color = Color.White,
+//                fontSize = 34.sp,
+//                fontWeight = FontWeight.Bold,
+//                modifier = Modifier.align(Alignment.Center)
+//            )
+//        }
+//
+//        // Make the "Publish Your RV" title fixed at the top
+//        Text(text = "Publish Your RV", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+//
+//        // Add Scrollable area for the inputs
+//        Column(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .verticalScroll(rememberScrollState()) // Add scroll functionality here
+//                .padding(top = 10.dp)
+//        ) {
+//            OutlinedTextField(
+//                value = name,
+//                onValueChange = { name = it },
+//                label = { Text("RV Name") },
+//                modifier = Modifier.fillMaxWidth()
+//            )
+//
+//            OutlinedTextField(
+//                value = description,
+//                onValueChange = { description = it },
+//                label = { Text("Description") },
+//                modifier = Modifier.fillMaxWidth()
+//            )
+//
+//            OutlinedTextField(
+//                value = price,
+//                onValueChange = { price = it },
+//                label = { Text("Price Per Day") },
+//                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+//                modifier = Modifier.fillMaxWidth()
+//            )
+//
+//            OutlinedTextField(
+//                value = place,
+//                onValueChange = { place = it },
+//                label = { Text("Location") },
+//                modifier = Modifier.fillMaxWidth()
+//            )
+//
+//            OutlinedTextField(
+//                value = imageUrl,
+//                onValueChange = { imageUrl = it },
+//                label = { Text("Image URL") },
+//                modifier = Modifier.fillMaxWidth()
+//            )
+//
+//            OutlinedTextField(
+//                value = place,
+//                onValueChange = { place = it },
+//                label = { Text("Kilometer Limitation per Day") },
+//                modifier = Modifier.fillMaxWidth()
+//            )
+//// for the additional images
+//            OutlinedTextField(
+//                value = newImageUrl,
+//                onValueChange = { newImageUrl = it },
+//                label = { Text("Enter Additional Image URL") },
+//                modifier = Modifier.fillMaxWidth()
+//            )
+//
+//            // Button to add the image URL to the list
+//            Button(
+//                onClick = {
+//                    if (newImageUrl.isNotEmpty()) {
+//                        additionalImages = additionalImages.toMutableList().apply { add(newImageUrl) }
+//                        newImageUrl = "" // Clear input field after adding
+//                    }
+//                },
+//                modifier = Modifier.padding(top = 8.dp)
+//            ) {
+//                Text("Add Image URL")
+//            }
+//
+//            // Display the added image URLs
+//            LazyColumn(
+//                modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+//            ) {
+//                items(additionalImages) { imageUrl ->
+//                    Row(
+//                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+//                        horizontalArrangement = Arrangement.SpaceBetween
+//                    ) {
+//                        Text(imageUrl, modifier = Modifier.weight(1f)) // Show URL
+//                        // Button to delete an image URL
+//                        IconButton(onClick = {
+//                            additionalImages = additionalImages.filter { it != imageUrl }.toMutableList()
+//                        }) {
+//                            Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
+//                        }
+//                    }
+//                }
+//            }
+//
+//
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceBetween
+//            ) {
+//                Row(verticalAlignment = Alignment.CenterVertically) {
+//                    Checkbox(
+//                        checked = isForSale,
+//                        onCheckedChange = { isForSale = it }
+//                    )
+//                    Text(text = "For Sale")
+//                }
+//
+//                Row(verticalAlignment = Alignment.CenterVertically) {
+//                    Checkbox(
+//                        checked = isPopular,
+//                        onCheckedChange = { isPopular = it }
+//                    )
+//                    Text(text = "For Rental")
+//                }
+//            }
+//
+//            Button(
+//                onClick = {
+//                    if (name.isNotEmpty() && description.isNotEmpty() && price.isNotEmpty() && place.isNotEmpty()) {
+//                        val priceValue = price.toDoubleOrNull()
+//                        if (priceValue == null) {
+//                            Toast.makeText(context, "Invalid price format", Toast.LENGTH_SHORT).show()
+//                            return@Button
+//                        }
+//
+//                        val newRV = RV(
+//                            id = UUID.randomUUID().toString(),
+//                            name = name,
+//                            description = description,
+//                            pricePerDay = priceValue,
+//                            place = place,
+//                            imageUrl = imageUrl,
+//                            ownerId = userId,
+//                            isForSale = isForSale,
+//                            isPopular = isPopular,
+//                            additionalImages = emptyList(),
+//                            insurance = emptyMap(),
+//                            driverLicenceRequired = "",
+//                            kilometerLimitation = 0,
+//                            status = "Available",
+//                            createdAt = Timestamp.now(),
+//                            bookedDates = emptyList()
+//                        )
+//
+//                        rvViewModel.addRV(newRV) // Calls ViewModel function
+//
+//
+//                    } else {
+//                        Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+//                    }
+//                },
+//                modifier = Modifier.fillMaxWidth()
+//            ) {
+//                Text("Submit RV")
+//            }
+//
+//        }
+//    }
+//}
+//

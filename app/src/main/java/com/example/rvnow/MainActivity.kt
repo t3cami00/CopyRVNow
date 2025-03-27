@@ -116,6 +116,7 @@ fun RVNowApp(authViewModel: AuthViewModel) {
             composable("home") { HomeScreen(navController = navController) }
             composable("owner") { OwnerScreen(navController = navController) }
             composable("signup") { SignupScreen(navController = navController) }
+//            composable("login") { LoginScreen(navController = navController) }
             composable("Signin|up") { LoginScreen(navController = navController, authViewModel = authViewModel) }
             composable("rental") { RentalScreen(navController = navController) }
             composable("sales") { SalesScreen(rvs = getSampleRVs(), navController = navController) }

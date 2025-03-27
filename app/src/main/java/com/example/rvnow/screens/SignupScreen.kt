@@ -232,7 +232,7 @@ fun SignupScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 TextButton(
-                    onClick = { navController.navigate("Signin") },
+                    onClick = { navController.navigate("Signin|up") },
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
                     Text(text = "Already have an account? Log in")

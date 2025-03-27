@@ -229,7 +229,8 @@ fun RentalScreen(
 //            return timestamp?.toDate()?.let { simpleDateFormat.format(it) } ?: ""
 //        }
         val filteredRVs1 = rvList.filter {
-            it.isForSale == true}
+            !it.isForSale
+        }
 
 
 
