@@ -17,55 +17,41 @@ import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Key
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.example.rvnow.model.RV
 import com.example.rvnow.model.RVType
 import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rvnow.viewmodels.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
-
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
-import coil.compose.rememberAsyncImagePainter
 import com.example.rvnow.screens.OwnerScreen
 import com.example.rvnow.viewmodels.RVViewModel
-
-//import androidx.compose.runtime.observeAsState
-//class MainActivity : ComponentActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContent {
-//            RVNowApp()
-//        }
-//    }
-//}
-
-
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,7 +88,6 @@ fun RVNowApp(authViewModel: AuthViewModel) {
             fontSize = 34.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.Center),
-//            textStyle = TextStyle(fontSize = 34.sp, color = Color.White, fontWeight = FontWeight.Bold),
         )
     }
     Scaffold(
@@ -110,13 +95,12 @@ fun RVNowApp(authViewModel: AuthViewModel) {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = startDestination,  // Dynamic start destination based on login state
+            startDestination = startDestination,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("home") { HomeScreen(navController = navController) }
             composable("owner") { OwnerScreen(navController = navController) }
             composable("signup") { SignupScreen(navController = navController) }
-//            composable("login") { LoginScreen(navController = navController) }
             composable("Signin|up") { LoginScreen(navController = navController, authViewModel = authViewModel) }
             composable("rental") { RentalScreen(navController = navController) }
             composable("sales") { SalesScreen(rvs = getSampleRVs(), navController = navController) }
@@ -131,129 +115,57 @@ fun RVNowApp(authViewModel: AuthViewModel) {
                 val rvViewModel: RVViewModel = viewModel()
                 RVDetailScreen(rvId = rvId, rvViewModel = rvViewModel, navController = navController)
             }
-
         }
     }
 }
 
 @Composable
 fun BottomNavBar(navController: NavController, authViewModel: AuthViewModel) {
-    // Observe authentication state from the AuthViewModel
+    // 保持原有的认证状态检查逻辑
     val isLoggedIn by authViewModel.isLoggedIn.observeAsState(false)
-    val items = listOf("Home", "Rental", "Sales", "Owner", if (isLoggedIn) "Profile" else "Signin|up")
-    val icons = listOf(
-        Icons.Default.Home,
-        Icons.Default.DirectionsCar,
-        Icons.Filled.DirectionsCar,
-        Icons.Default.Person,
-        if (isLoggedIn) Icons.Default.Person else Icons.Default.Login
+
+    // 定义导航项，保持原有的登录/登出逻辑不变
+    val items = listOf(
+        NavItem("Home", Icons.Default.Home, "home"),
+        NavItem("Rent", Icons.Default.DirectionsCar, "rental"),
+        NavItem("Buy", Icons.Default.ShoppingCart, "sales"),
+        NavItem("Owner", Icons.Default.Key, "owner"),
+        NavItem(
+            if (isLoggedIn) "Profile" else "Login",
+            if (isLoggedIn) Icons.Default.Person else Icons.Default.Login,
+            if (isLoggedIn) "profile" else "Signin|up"
+        )
     )
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     NavigationBar {
-        items.forEachIndexed { index, screen ->
+        items.forEach { item ->
             NavigationBarItem(
-                icon = { Icon(icons[index], contentDescription = screen) },
-                label = { Text(screen) },
-                selected = false, // Change based on state
+                icon = { Icon(item.icon, contentDescription = item.label) },
+                label = { Text(item.label) },
+                selected = currentRoute == item.route,
                 onClick = {
-                    navController.navigate(screen.lowercase()) // Navigate to the screen
+                    // 保持原有的导航逻辑不变
+                    navController.navigate(item.route) {
+                        // 仅优化导航栈管理，不影响原有逻辑
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
             )
         }
     }
 }
 
+// 辅助数据类
+data class NavItem(val label: String, val icon: ImageVector, val route: String)
 
-
-
-//@Composable
-//fun RVNowApp() {
-//    val navController = rememberNavController()
-//    val image1 = rememberImagePainter("file:///android_asset/images/11.jpeg")
-//    val auth = FirebaseAuth.getInstance()
-//    val currentUser = auth.currentUser
-//
-//    val startDestination = if (currentUser != null) "profile" else "Signin|up"
-//    // Debugging log
-////    println("RVNowApp is being recomposed!")
-////
-////    Box(
-////        modifier = Modifier
-////            .fillMaxWidth()
-////            .height(150.dp)
-////            .padding(bottom = 16.dp)
-////            .background(color = Color.White)
-////    ) {
-////        Image(
-////            painter = image1,
-////            contentDescription = "RV Image",
-////            modifier = Modifier.fillMaxSize()
-////        )
-////
-////        Text(
-////            text = "Welcome to RVNow",
-////            color = Color.Black,
-////            fontSize = 34.sp,
-////            fontWeight = FontWeight.Bold,
-////            modifier = Modifier.align(Alignment.Center),
-//////            textStyle = TextStyle(fontSize = 34.sp, color = Color.White, fontWeight = FontWeight.Bold),
-////        )
-////    }
-//
-//
-//    Scaffold(
-//        bottomBar = {  BottomNavBar(navController) }
-//    ) { innerPadding ->
-//        NavHost(
-//            navController = navController,
-//            startDestination = "home",
-//            modifier = Modifier.padding(innerPadding)
-//        ) {
-//            composable("home") { HomeScreen( navController = navController) }
-//            composable("signup") { SignupScreen( navController = navController) }
-//            composable("Signin|up") { LoginScreen( navController = navController) }
-//            composable("rental") { RentalScreen(navController = navController) }
-//            composable("sales") { SalesScreen(rvs = getSampleRVs(), navController = navController) }
-//            composable("profile") { ProfileScreen(rvs = getSampleRVs(), navController = navController) }
-////            composable("detail/{rvId}") {
-////                backStackEntry ->
-////                val rvId = backStackEntry.arguments?.getString("rvId")?.toInt() ?: 0
-////                RVDetailScreen(rvId = rvId, rvs = getSampleRVs(), navController = navController)
-////            }
-//            composable("detail/{rvId}") { backStackEntry ->
-//                val rvId = backStackEntry.arguments?.getString("rvId") ?: ""
-//                RVDetailScreen(rvId = rvId, rvs = getSampleRVs(), navController = navController)
-//            }
-//        }
-//    }
-//}
-//
-
-//@Composable
-//fun BottomNavBar(navController: NavController) {
-//    val items = listOf("Home", "Rental", "Sales","Owner", "Signin|up")
-//    val icons = listOf(
-//        Icons.Default.Home,
-//        Icons.Default.DirectionsCar,
-//        Icons.Filled.DirectionsCar,
-//        Icons.Default.Person,
-//        Icons.Default.Login)
-//
-//    NavigationBar {
-//        items.forEachIndexed { index, screen ->
-//            NavigationBarItem(
-//                icon = { Icon(icons[index], contentDescription = screen) },
-//                label = { Text(screen) },
-//                selected = false, // Change based on state
-//                onClick = {
-//                    navController.navigate(screen.lowercase()) // Navigate to the screen
-//                }
-//            )
-//        }
-//    }
-//}
-//
-//// Sample RV data
+// 以下是原有不变的getSampleRVs函数
 fun getSampleRVs(): List<RV> {
     return listOf(
         RV(
@@ -270,7 +182,6 @@ fun getSampleRVs(): List<RV> {
                 "coverage" to "fully"
             ),
             kilometerLimitation = 320,
-//            isForSale = true,
             imageUrl = "file:///android_asset/images/1.jpg"
         ),
         RV(
@@ -292,7 +203,6 @@ fun getSampleRVs(): List<RV> {
                 "coverage" to "fully"
             ),
             kilometerLimitation = 320,
-//            isForSale = true,
             imageUrl = "file:///android_asset/images/2.jpg"
         ),
         RV(
@@ -314,10 +224,7 @@ fun getSampleRVs(): List<RV> {
                 "coverage" to "fully"
             ),
             kilometerLimitation = 320,
-//            isForSale = false,
             imageUrl = "file:///android_asset/images/3.jpg"
         )
     )
 }
-
-
