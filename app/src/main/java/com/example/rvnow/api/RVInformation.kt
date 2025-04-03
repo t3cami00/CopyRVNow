@@ -1,6 +1,7 @@
 
 package com.example.rvnow.api
 import android.util.Log
+import com.example.rvnow.model.Comment
 import com.google.firebase.Timestamp
 import com.example.rvnow.model.RV
 import com.google.firebase.firestore.FirebaseFirestore
@@ -45,6 +46,24 @@ class RVInformation {
     }
 
 
+    fun addComment(rvId: String, comment: Comment) {
+        val commentRef = FirebaseFirestore.getInstance()
+            .collection("rv")           // The "rv" collection
+            .document(rvId)             // The specific RV document ID
+            .collection("comments")     // The "comments" subcollection
+            .document()                 // Firestore automatically generates an ID for the comment
+
+        val commentWithId = comment.copy(id = commentRef.id)  // Set the Firestore generated ID to the comment
+
+        // Now add the comment to Firestore
+        commentRef.set(commentWithId)
+            .addOnSuccessListener {
+                Log.d("Firestore", "Comment added successfully!")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Error adding comment", e)
+            }
+    }
 
 
     suspend fun addAllRV(rv:RV) {
