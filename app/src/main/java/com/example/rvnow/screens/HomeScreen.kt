@@ -3,42 +3,18 @@ package com.example.rvnow
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.Key
-import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,17 +34,18 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.rvnow.model.RV
 import com.example.rvnow.viewmodels.RVViewModel
-
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 
 private val SECTION_SPACING_LARGE = 32.dp
 private val SECTION_SPACING = 24.dp
 private val SECTION_SPACING_SMALL = 16.dp
 
-
 private val BUTTONS_TO_RENTAL_SPACING_LARGE = 48.dp
 private val BUTTONS_TO_RENTAL_SPACING = 40.dp
 private val BUTTONS_TO_RENTAL_SPACING_SMALL = 32.dp
-
 
 private val BETWEEN_RVS_SPACING_LARGE = 48.dp
 private val BETWEEN_RVS_SPACING = 36.dp
@@ -95,12 +72,10 @@ fun HomeScreen(
     val rvList by rvViewModel.rvs.collectAsState()
     val heroImage = rememberAsyncImagePainter("file:///android_asset/images/11.jpeg")
 
-
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val isSmallScreen = screenWidth < 360.dp
     val isMediumScreen = screenWidth >= 360.dp && screenWidth < 600.dp
     val isLargeScreen = screenWidth >= 600.dp
-
 
     val horizontalPadding = when {
         isLargeScreen -> HORIZONTAL_PADDING_LARGE
@@ -114,13 +89,11 @@ fun HomeScreen(
         else -> SECTION_SPACING
     }
 
-
     val buttonsToRentalSpacing = when {
         isLargeScreen -> BUTTONS_TO_RENTAL_SPACING_LARGE
         isSmallScreen -> BUTTONS_TO_RENTAL_SPACING_SMALL
         else -> BUTTONS_TO_RENTAL_SPACING
     }
-
 
     val betweenRVsSpacing = when {
         isLargeScreen -> BETWEEN_RVS_SPACING_LARGE
@@ -135,7 +108,6 @@ fun HomeScreen(
     ) {
         HeroSection(heroImage = heroImage)
 
-
         Spacer(modifier = Modifier.height(sectionSpacing))
 
         ActionButtonsSection(
@@ -144,9 +116,7 @@ fun HomeScreen(
             isSmallScreen = isSmallScreen
         )
 
-
         Spacer(modifier = Modifier.height(buttonsToRentalSpacing))
-
 
         Box(
             modifier = Modifier
@@ -162,12 +132,11 @@ fun HomeScreen(
             title = "Popular Rental RVs",
             rvs = rvList.filter { !it.isForSale && it.isPopular },
             navController = navController,
-            horizontalPadding = horizontalPadding
+            horizontalPadding = horizontalPadding,
+            viewModel = rvViewModel
         )
 
-
         Spacer(modifier = Modifier.height(betweenRVsSpacing))
-
 
         Box(
             modifier = Modifier
@@ -183,10 +152,10 @@ fun HomeScreen(
             title = "Popular Listed RVs",
             rvs = rvList.filter { it.isForSale && it.isPopular },
             navController = navController,
-            horizontalPadding = horizontalPadding
+            horizontalPadding = horizontalPadding,
+            viewModel = rvViewModel
         )
 
-        // 添加底部间距，使滚动时底部有足够空间
         Spacer(modifier = Modifier.height(sectionSpacing))
     }
 }
@@ -240,9 +209,7 @@ private fun ActionButtonsSection(
         val iconWidth = 24.dp
         val buttonSpacing = if (isSmallScreen) BUTTON_SPACING_SMALL else BUTTON_SPACING
 
-
         if (isSmallScreen) {
-
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(buttonSpacing)
@@ -284,8 +251,6 @@ private fun ActionButtonsSection(
                 )
             }
         } else {
-
-            // First row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -313,7 +278,6 @@ private fun ActionButtonsSection(
 
             Spacer(modifier = Modifier.height(buttonSpacing))
 
-            // Second row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -361,7 +325,6 @@ private fun CustomActionButton(
         ),
         modifier = modifier
             .height(BUTTON_HEIGHT)
-
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -397,7 +360,8 @@ private fun PopularRVsSection(
     title: String,
     rvs: List<RV>,
     navController: NavController,
-    horizontalPadding: Dp
+    horizontalPadding: Dp,
+    viewModel: RVViewModel
 ) {
     Column(
         modifier = Modifier
@@ -427,7 +391,8 @@ private fun PopularRVsSection(
                         "Family | Amazing Features | Comfort..."
                     else "Spacious | Luxury | All Included",
                     navController = navController,
-                    horizontalPadding = horizontalPadding
+                    horizontalPadding = horizontalPadding,
+                    viewModel = viewModel
                 )
             }
         }
@@ -440,26 +405,35 @@ private fun RVCard(
     title: String,
     features: String,
     navController: NavController,
-    horizontalPadding: Dp
+    horizontalPadding: Dp,
+    viewModel: RVViewModel,
 ) {
     var currentImageIndex by remember { mutableStateOf(0) }
     val allImages = listOfNotNull(rv.imageUrl) + (rv.additionalImages ?: emptyList())
     val visibleImages = allImages.take(6)
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-
-    // 根据屏幕宽度和水平内边距调整卡片宽度
     val cardWidth = (screenWidth - horizontalPadding * 2 - CARD_SPACING) * 0.8f
+
+    // Fixed height for the card
+    val cardHeight = 280.dp
+    // Fixed height for the image section
+    val imageHeight = 192.dp
+    // Fixed height for the text section (card height - image height - padding)
+    val textSectionHeight = cardHeight - imageHeight - CARD_CONTENT_PADDING * 2
 
     Card(
         modifier = Modifier
             .width(cardWidth)
+            .height(cardHeight)
             .clickable { navController.navigate("detail/${rv.id}") },
         shape = RoundedCornerShape(CARD_CORNER_RADIUS)
     ) {
         Column {
+            // Image section with fixed height
             Box(
                 modifier = Modifier
-                    .height(192.dp)
+                    .height(imageHeight)
+                    .fillMaxWidth()
                     .clip(RoundedCornerShape(
                         topStart = CARD_CORNER_RADIUS,
                         topEnd = CARD_CORNER_RADIUS,
@@ -531,27 +505,73 @@ private fun RVCard(
                 }
             }
 
+            // Text section with fixed height
             Column(
                 modifier = Modifier
+//                    .height(textSectionHeight)
                     .fillMaxWidth()
                     .padding(horizontal = CARD_CONTENT_PADDING, vertical = CARD_CONTENT_PADDING)
-                    .height(56.dp)
             ) {
-                Text(
-                    text = title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
+                // Title row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = title,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(start = 12.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Rating",
+                            tint = Color(0xFFFFC107),
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = "%.1f".format(rv.averageRating),
+                            fontSize = 14.sp,
+                            color = Color.Black,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = { viewModel.toggleFavorite(rv.id) },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (rv.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = "Favorite",
+                            tint = if (rv.isFavorite) Color.Red else Color.Gray,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Description with exactly 2 lines
                 Text(
                     text = features,
                     fontSize = 14.sp,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    lineHeight = 16.sp
+                    lineHeight = 18.sp,
+                    modifier = Modifier.fillMaxWidth()
                 )
+
+                // Spacer to push content up if there's extra space
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }

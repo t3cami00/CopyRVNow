@@ -8,18 +8,22 @@ import com.example.rvnow.model.RV
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 
 class RVViewModel : ViewModel() {
-
     private val rvApiService = RVInformation()
     private val _rvs = MutableStateFlow<List<RV>>(emptyList())
     val rvs: StateFlow<List<RV>> = _rvs
 
-    private val _loading = MutableStateFlow(false) // Loading state
+    private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading
 
-    private val _error = MutableStateFlow<String?>(null) // Error state
+    private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
+
+    // 本地收藏状态管理
+    private val _favorites = mutableStateMapOf<String, Boolean>()
 
     init {
         fetchRVs()
@@ -29,8 +33,20 @@ class RVViewModel : ViewModel() {
         viewModelScope.launch {
             _loading.value = true
             try {
-                val fetchedRVs = rvApiService.fetchAllRVs()
-                println("DEBUG: Fetched RVs - $fetchedRVs")
+                var fetchedRVs = rvApiService.fetchAllRVs()
+
+                // 添加硬编码评分和收藏状态
+                fetchedRVs = fetchedRVs.map { rv ->
+                    rv.copy(
+                        averageRating = when (rv.id) {
+                            "1" -> 4.5
+                            "2" -> 3.8
+                            else -> 3.5
+                        },
+                        isFavorite = _favorites[rv.id] ?: false
+                    )
+                }
+
                 _rvs.value = fetchedRVs
             } catch (e: Exception) {
                 _error.value = "Failed to fetch RVs: ${e.message}"
@@ -40,8 +56,19 @@ class RVViewModel : ViewModel() {
         }
     }
 
+    // 收藏/取消收藏
+    fun toggleFavorite(rvId: String) {
+        _favorites[rvId] = !(_favorites[rvId] ?: false)
+        updateLocalFavoriteStatus(rvId)
+    }
 
+    private fun updateLocalFavoriteStatus(rvId: String) {
+        _rvs.value = _rvs.value.map { rv ->
+            if (rv.id == rvId) rv.copy(isFavorite = _favorites[rv.id] ?: false) else rv
+        }
+    }
 
+    // 保持原有方法不变
     fun fetchLastRVId() {
         viewModelScope.launch {
             try {
