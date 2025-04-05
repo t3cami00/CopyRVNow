@@ -38,6 +38,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.font.FontFamily
+
 
 private val SECTION_SPACING_LARGE = 32.dp
 private val SECTION_SPACING = 24.dp
@@ -70,7 +72,7 @@ fun HomeScreen(
     navController: NavController
 ) {
     val rvList by rvViewModel.rvs.collectAsState()
-    val heroImage = rememberAsyncImagePainter("file:///android_asset/images/11.jpeg")
+    val heroImage = rememberAsyncImagePainter("file:///android_asset/images/Homepage_Image.png")
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val isSmallScreen = screenWidth < 360.dp
@@ -177,19 +179,26 @@ private fun HeroSection(heroImage: Painter) {
         Column(
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(start = HORIZONTAL_PADDING + SECTION_TITLE_PADDING_START, bottom = 24.dp)
+                .padding(start = HORIZONTAL_PADDING + SECTION_TITLE_PADDING_START, bottom = 75.dp)
         ) {
             Text(
                 text = "Journey boldly",
                 color = Color.White,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 20.sp,
+//                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Serif,
+                letterSpacing = 0.5.sp,
             )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             Text(
                 text = "feel at home wherever you go",
                 color = Color.White,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 20.sp,
+//                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Serif,
+                letterSpacing = 0.5.sp,
             )
         }
     }
@@ -346,7 +355,7 @@ private fun CustomActionButton(
             Text(
                 text = text,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = if (isSmallScreen) TextAlign.Start else TextAlign.Center
