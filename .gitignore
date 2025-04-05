@@ -1,0 +1,13 @@
+# Gradle 缓存
+.gradle/
+build/
+
+# IDE 文件
+.idea/
+*.iml
+
+# 本地配置文件
+local.properties
+
+# 系统文件
+.DS_Store
