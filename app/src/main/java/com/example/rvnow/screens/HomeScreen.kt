@@ -38,6 +38,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.font.FontFamily
+
 
 private val SECTION_SPACING_LARGE = 32.dp
 private val SECTION_SPACING = 24.dp
@@ -70,7 +72,7 @@ fun HomeScreen(
     navController: NavController
 ) {
     val rvList by rvViewModel.rvs.collectAsState()
-    val heroImage = rememberAsyncImagePainter("file:///android_asset/images/11.jpeg")
+    val heroImage = rememberAsyncImagePainter("file:///android_asset/images/brighter_image_2.png")
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val isSmallScreen = screenWidth < 360.dp
@@ -177,19 +179,26 @@ private fun HeroSection(heroImage: Painter) {
         Column(
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(start = HORIZONTAL_PADDING + SECTION_TITLE_PADDING_START, bottom = 24.dp)
+                .padding(start = HORIZONTAL_PADDING + SECTION_TITLE_PADDING_START, bottom = 75.dp)
         ) {
             Text(
                 text = "Journey boldly",
                 color = Color.White,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 20.sp,
+//                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Serif,
+                letterSpacing = 0.5.sp,
             )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             Text(
                 text = "feel at home wherever you go",
                 color = Color.White,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 20.sp,
+//                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Serif,
+                letterSpacing = 0.5.sp,
             )
         }
     }
@@ -201,6 +210,15 @@ private fun ActionButtonsSection(
     horizontalPadding: Dp,
     isSmallScreen: Boolean
 ) {
+    fun darkenColor(color: Color, factor: Float = 0.25f): Color {
+        return Color(
+            red = (color.red * (1 - factor)).coerceIn(0f, 1f),
+            green = (color.green * (1 - factor)).coerceIn(0f, 1f),
+            blue = (color.blue * (1 - factor)).coerceIn(0f, 1f),
+            alpha = color.alpha
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -208,6 +226,43 @@ private fun ActionButtonsSection(
     ) {
         val iconWidth = 24.dp
         val buttonSpacing = if (isSmallScreen) BUTTON_SPACING_SMALL else BUTTON_SPACING
+
+//        val colors = listOf(
+//            // 主色：自然大地色 + 温暖木质调
+//            Color(0xFF5D8AA8),  // 湖蓝色（自然天空/水域）
+//            Color(0xFFE27D5F),  // 陶土橙（温暖活力）
+//            Color(0xFF6B8E23),  // 苔藓绿（自然植被）
+//            Color(0xFFA78A7F)   // 浅驼色（木质温暖）
+//        ).map { darkenColor(it) }
+
+//        val colors = listOf(
+//            Color(0xFF3A86FF),  // 活力湖蓝（自然与水）
+//            Color(0xFFFF9E00),  // 阳光橙（温暖与能量）
+//            Color(0xFF4CAF50),  // 生态绿（森林与生机）
+//            Color(0xFFFF6584)   // 珊瑚粉（欢乐与生活）
+//        ).map { darkenColor(it) }
+
+//        val colors = listOf(
+//            Color(0xFF5D8AA8),  // 灰湖蓝
+//            Color(0xFFF4A261),  // 砂岩橙
+//            Color(0xFF90BE6D),  // 嫩草绿
+//            Color(0xFFFFB4A2)   // 柔珊瑚
+//        ).map { darkenColor(it) }
+
+//        val colors = listOf(
+//            Color(0xFF8BA88E),  // 雾霭绿
+//            Color(0xFFD4B483),  // 亚麻棕
+//            Color(0xFFA5B5C3),  // 砂岩灰
+//            Color(0xFFC7A297)   // 陶土粉
+//        ).map { darkenColor(it) }
+
+
+        val colors = listOf(
+            Color(0xFFE27D5F),  // 陶土橙（温暖活力）
+            Color(0xFF5D8AA8),  // 湖蓝（自然平衡）
+            Color(0xFF6B8E23),  // 苔藓绿（生机感）
+            Color(0xFFA78A7F)   // 浅驼色（家的温暖）
+        ).map { darkenColor(it) }
 
         if (isSmallScreen) {
             Column(
@@ -218,7 +273,7 @@ private fun ActionButtonsSection(
                     text = "Rent an RV",
                     icon = Icons.Default.DirectionsCar,
                     onClick = { navController.navigate("rental") },
-                    color = Color(0xFF607D8B),
+                    color = colors[0],
                     iconWidth = iconWidth,
                     isSmallScreen = true
                 )
@@ -227,7 +282,7 @@ private fun ActionButtonsSection(
                     text = "Buy an RV",
                     icon = Icons.Default.ShoppingCart,
                     onClick = { navController.navigate("sales") },
-                    color = Color(0xFF795548),
+                    color = colors[1],
                     iconWidth = iconWidth,
                     isSmallScreen = true
                 )
@@ -236,7 +291,7 @@ private fun ActionButtonsSection(
                     text = "RV Owner",
                     icon = Icons.Default.Key,
                     onClick = { navController.navigate("owner") },
-                    color = Color(0xFF5D4037),
+                    color = colors[2],
                     iconWidth = iconWidth,
                     isSmallScreen = true
                 )
@@ -245,7 +300,7 @@ private fun ActionButtonsSection(
                     text = "Go RVing",
                     icon = Icons.Default.Public,
                     onClick = { /* Add travel navigation */ },
-                    color = Color(0xFF455A64),
+                    color = colors[3],
                     iconWidth = iconWidth,
                     isSmallScreen = true
                 )
@@ -259,7 +314,7 @@ private fun ActionButtonsSection(
                     text = "Rent an RV",
                     icon = Icons.Default.DirectionsCar,
                     onClick = { navController.navigate("rental") },
-                    color = Color(0xFF607D8B),
+                    color = colors[0],
                     iconWidth = iconWidth,
                     isSmallScreen = false,
                     modifier = Modifier.weight(1f)
@@ -269,7 +324,7 @@ private fun ActionButtonsSection(
                     text = "Buy an RV",
                     icon = Icons.Default.ShoppingCart,
                     onClick = { navController.navigate("sales") },
-                    color = Color(0xFF795548),
+                    color = colors[1],
                     iconWidth = iconWidth,
                     isSmallScreen = false,
                     modifier = Modifier.weight(1f)
@@ -286,7 +341,7 @@ private fun ActionButtonsSection(
                     text = "RV Owner",
                     icon = Icons.Default.Key,
                     onClick = { navController.navigate("owner") },
-                    color = Color(0xFF5D4037),
+                    color = colors[2],
                     iconWidth = iconWidth,
                     isSmallScreen = false,
                     modifier = Modifier.weight(1f)
@@ -296,7 +351,7 @@ private fun ActionButtonsSection(
                     text = "Go RVing",
                     icon = Icons.Default.Public,
                     onClick = { /* Add travel navigation */ },
-                    color = Color(0xFF455A64),
+                    color = colors[3],
                     iconWidth = iconWidth,
                     isSmallScreen = false,
                     modifier = Modifier.weight(1f)
@@ -320,7 +375,7 @@ private fun CustomActionButton(
         onClick = onClick,
         shape = RoundedCornerShape(BUTTON_CORNER_RADIUS),
         colors = ButtonDefaults.buttonColors(
-            containerColor = color.copy(alpha = 0.1f),
+            containerColor = color.copy(alpha = 0.16f),
             contentColor = color
         ),
         modifier = modifier
@@ -346,7 +401,7 @@ private fun CustomActionButton(
             Text(
                 text = text,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = if (isSmallScreen) TextAlign.Start else TextAlign.Center
