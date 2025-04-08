@@ -489,15 +489,21 @@ private fun RVCard(
                 modifier = Modifier
                     .height(imageHeight)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(
-                        topStart = CARD_CORNER_RADIUS,
-                        topEnd = CARD_CORNER_RADIUS,
-                        bottomStart = CARD_CORNER_RADIUS / 1.5f,
-                        bottomEnd = CARD_CORNER_RADIUS / 1.5f
-                    ))
+                    .clip(
+                        RoundedCornerShape(
+                            topStart = CARD_CORNER_RADIUS,
+                            topEnd = CARD_CORNER_RADIUS,
+                            bottomStart = CARD_CORNER_RADIUS / 1.5f,
+                            bottomEnd = CARD_CORNER_RADIUS / 1.5f
+                        )
+                    )
             ) {
                 Image(
-                    painter = rememberAsyncImagePainter(model = visibleImages.getOrNull(currentImageIndex)),
+                    painter = rememberAsyncImagePainter(
+                        model = visibleImages.getOrNull(
+                            currentImageIndex
+                        )
+                    ),
                     contentDescription = "RV Image",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
@@ -513,7 +519,8 @@ private fun RVCard(
                     ) {
                         IconButton(
                             onClick = {
-                                currentImageIndex = (currentImageIndex - 1 + visibleImages.size) % visibleImages.size
+                                currentImageIndex =
+                                    (currentImageIndex - 1 + visibleImages.size) % visibleImages.size
                             },
                             modifier = Modifier.size(32.dp)
                         ) {
@@ -549,7 +556,9 @@ private fun RVCard(
                                 modifier = Modifier
                                     .size(6.dp)
                                     .background(
-                                        color = if (index == currentImageIndex) Color.White else Color.White.copy(alpha = 0.5f),
+                                        color = if (index == currentImageIndex) Color.White else Color.White.copy(
+                                            alpha = 0.5f
+                                        ),
                                         shape = RoundedCornerShape(50)
                                     )
                                     .padding(1.dp)
@@ -600,33 +609,34 @@ private fun RVCard(
                         )
                     }
 
-                    IconButton(
-                        onClick = { viewModel.toggleFavorite(rv.id) },
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            imageVector = if (rv.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = "Favorite",
-                            tint = if (rv.isFavorite) Color.Red else Color.Gray,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+//                    IconButton(
+//                        onClick = { viewModel.toggleFavorite(rv.id) },
+//                        modifier = Modifier.size(24.dp)
+//                    ) {
+//                        Icon(
+//                            imageVector = if (rv.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+//                            contentDescription = "Favorite",
+//                            tint = if (rv.isFavorite) Color.Red else Color.Gray,
+//                            modifier = Modifier.size(20.dp)
+//                        )
+//                    }
+//                }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Description with exactly 2 lines
+                    Text(
+                        text = features,
+                        fontSize = 14.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        lineHeight = 18.sp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Spacer to push content up if there's extra space
+                    Spacer(modifier = Modifier.weight(1f))
                 }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Description with exactly 2 lines
-                Text(
-                    text = features,
-                    fontSize = 14.sp,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    lineHeight = 18.sp,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                // Spacer to push content up if there's extra space
-                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }

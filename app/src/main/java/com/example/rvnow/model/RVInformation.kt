@@ -1,5 +1,5 @@
 
-package com.example.rvnow.api
+package com.example.rvnow.model
 import android.util.Log
 import com.example.rvnow.model.Comment
 import com.example.rvnow.model.Favourite
@@ -208,19 +208,19 @@ class RVInformation {
 
 
     fun fetchComments(rvId: String, onCommentsFetched: (List<Comment>) -> Unit) {
-        db.collection("rvs")
-            .document(rvId)
-            .collection("comments")
-            .orderBy("createdat", Query.Direction.DESCENDING)
-            .get() // Use 'get()' to fetch data once
-            .addOnSuccessListener { snapshot ->
-                val comments = snapshot.documents.mapNotNull { it.toObject(Comment::class.java) }
-                onCommentsFetched(comments)
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Error fetching comments", e)
-            }
-    }
+            db.collection("rvs")
+                .document(rvId)
+                .collection("comments")
+                .orderBy("createdat", Query.Direction.DESCENDING)
+                .get() // Use 'get()' to fetch data once
+                .addOnSuccessListener { snapshot ->
+                    val comments = snapshot.documents.mapNotNull { it.toObject(Comment::class.java) }
+                    onCommentsFetched(comments)
+                }
+                .addOnFailureListener { e ->
+                    Log.e("Firestore", "Error fetching comments", e)
+                }
+        }
 
 
     // In your RVApiService or similar
@@ -246,9 +246,9 @@ class RVInformation {
     suspend fun addAllRV(rv:RV) {
         try {
 
-            rvCollection.document(rv.id).set(rv).await()
-            Log.d("Firestore", "Document added/updated with ID: ${rv.id}")
-            // Use await() to properly suspend execution until Firestore operation completes
+                rvCollection.document(rv.id).set(rv).await()
+                Log.d("Firestore", "Document added/updated with ID: ${rv.id}")
+                // Use await() to properly suspend execution until Firestore operation completes
 //                rvCollection.document(rvObject.id).set(rvObject).await()
 
 //                Log.d("Firestore", "Document added/updated with ID: ${rvObject.id}")
@@ -260,7 +260,7 @@ class RVInformation {
     }
 }
 
-// Add an RV to the collection
+    // Add an RV to the collection
 
 //    suspend fun addallRV(rv: RV) {
 //        try {

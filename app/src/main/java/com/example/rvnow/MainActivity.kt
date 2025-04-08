@@ -66,6 +66,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun RVNowApp(authViewModel: AuthViewModel) {
     val navController = rememberNavController()
+//    val image1 = rememberAsyncImagePainter("file:///android_asset/images/11.jpeg")
     val image1 = rememberAsyncImagePainter("file:///android_asset/images/11.jpeg")
 
     val startDestination = "home"
@@ -113,7 +114,9 @@ fun RVNowApp(authViewModel: AuthViewModel) {
             composable("detail/{rvId}") { backStackEntry ->
                 val rvId = backStackEntry.arguments?.getString("rvId") ?: ""
                 val rvViewModel: RVViewModel = viewModel()
-                RVDetailScreen(rvId = rvId, rvViewModel = rvViewModel, navController = navController)
+                val authViewModel: AuthViewModel = viewModel()
+                RVDetailScreen(rvId = rvId, rvViewModel = rvViewModel, authViewModel= authViewModel,navController = navController)
+//                RVDetailScreen(rvId = rvId, rvViewModel = rvViewModel, navController = navController)
             }
         }
     }
