@@ -3,6 +3,7 @@ import com.google.firebase.Timestamp
 data class Comment(
     val id: String = "",
     val userId: String = "",
+    val email: String = "",
     val text:String = "",
 //    val userName: String = "",
 //    val userProfilePictureUrl: String? = null,

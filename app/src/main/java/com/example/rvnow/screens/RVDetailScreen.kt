@@ -589,7 +589,8 @@ fun RVDetailScreen(
                                         currentUser?.let { user ->
                                             val newComment = Comment(
                                                 text = commentText,
-//                                                userId = user.uid
+                                                userId = user.uid,
+                                                email = user.email ?: "unknown@example.com"
                                             )
                                             rvViewModel.addComment(rvId, newComment)
                                             commentText = ""
@@ -633,11 +634,22 @@ fun RVDetailScreen(
                                             .fillMaxWidth()
                                             .padding(vertical = 4.dp)
                                     ) {
-                                        Text(
-                                            text = "${comment.userId}: ${comment.text}",
-                                            modifier = Modifier.padding(8.dp),
-                                            fontSize = 14.sp
-                                        )
+                                        Column(modifier = Modifier.padding(8.dp)) {
+                                            Text(
+                                                text = comment.text,
+                                                fontSize = 14.sp
+                                            )
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.End
+                                            ) {
+                                                Text(
+                                                    text = comment.email ?: "",
+                                                    fontSize = 12.sp,
+                                                    color = Color.Gray
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
