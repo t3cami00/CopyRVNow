@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Login
@@ -133,6 +134,7 @@ fun BottomNavBar(navController: NavController, authViewModel: AuthViewModel) {
         NavItem("Rent", Icons.Default.DirectionsCar, "rental"),
         NavItem("Buy", Icons.Default.ShoppingCart, "sales"),
         NavItem("Owner", Icons.Default.Key, "owner"),
+        NavItem("Cart", Icons.Default.Casino, "cart"),
         NavItem(
             if (isLoggedIn) "Profile" else "Login",
             if (isLoggedIn) Icons.Default.Person else Icons.Default.Login,
