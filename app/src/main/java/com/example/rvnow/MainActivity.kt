@@ -59,13 +59,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val authViewModel: AuthViewModel = viewModel()
-            RVNowApp(authViewModel = authViewModel)
+            val rvViewModel: RVViewModel = viewModel()
+            RVNowApp(authViewModel = authViewModel, rvViewModel = rvViewModel)
         }
     }
 }
 
 @Composable
-fun RVNowApp(authViewModel: AuthViewModel) {
+fun RVNowApp(authViewModel: AuthViewModel,rvViewModel:RVViewModel) {
     val navController = rememberNavController()
 //    val image1 = rememberAsyncImagePainter("file:///android_asset/images/11.jpeg")
     val image1 = rememberAsyncImagePainter("file:///android_asset/images/11.jpeg")
@@ -101,6 +102,11 @@ fun RVNowApp(authViewModel: AuthViewModel) {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("home") { HomeScreen(navController = navController) }
+            composable("cart") { CartScreen(
+                navController = navController,
+                authViewModel = authViewModel,
+                rvViewModel = rvViewModel,
+            ) }
             composable("owner") { OwnerScreen(navController = navController) }
             composable("signup") { SignupScreen(navController = navController) }
             composable("Signin|up") { LoginScreen(navController = navController, authViewModel = authViewModel) }

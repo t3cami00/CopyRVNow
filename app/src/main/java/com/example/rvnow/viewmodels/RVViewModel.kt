@@ -2,6 +2,7 @@ package com.example.rvnow.viewmodels
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rvnow.api.RVInformation
@@ -19,9 +20,10 @@ import kotlinx.coroutines.Job
 import androidx.lifecycle.viewModelScope
 import com.example.rvnow.model.CartItem
 import com.example.rvnow.model.Rating
-import kotlinx.coroutines.flow.collect
+//import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-
+import com.google.firebase.Timestamp
 class RVViewModel : ViewModel() {
     private val rvApiService = RVInformation()
     private val _rvs = MutableStateFlow<List<RV>>(emptyList())
@@ -49,6 +51,10 @@ class RVViewModel : ViewModel() {
 
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems
+
+//    // In RVViewModel.kt
+//    private val _cartItems = mutableStateListOf<CartItem>()
+//    val cartItems: List<CartItem> get() = _cartItems
 
     //    private val _averageRating = MutableLiveData<Float>()
 //    val averageRating: LiveData<Float> = _averageRating
@@ -255,6 +261,45 @@ class RVViewModel : ViewModel() {
             }
         }
     }
+
+    // Function to fetch cart items from Firestore
+    fun fetchCartItems(userId: String) {
+        viewModelScope.launch {
+            try {
+                rvApiService.fetchCartItems(userId) { cartItems ->
+                    // Clear the list and add new items
+                    _cartItems.value = cartItems // Directly assigning the new list
+                }
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+
+
+
+
+
+
+//    fun checkout(userId: String, callback: (Boolean) -> Unit) {
+//        viewModelScope.launch {
+//            try {
+                // 1. Process payment (implement your payment logic)
+//                val paymentSuccess = rvApiService.processPayment(userId, _cartItems)
+
+                // 2. If successful, clear cart
+//                if (paymentSuccess) {
+//                    _cartItems.clear()
+//                    rvApiService.clearCart(userId)
+//                    callback(true)
+//                } else {
+//                    callback(false)
+//                }
+//            } catch (e: Exception) {
+//                callback(false)
+//            }
+//        }
+//    }
 
     // 收藏/取消收藏
 //    fun toggleFavorite(rvId: String) {

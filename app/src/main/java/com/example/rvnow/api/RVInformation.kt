@@ -1,6 +1,7 @@
 
 package com.example.rvnow.api
 import android.util.Log
+import com.example.rvnow.model.CartItem
 import com.example.rvnow.model.Comment
 import com.example.rvnow.model.Favourite
 import com.google.firebase.Timestamp
@@ -240,6 +241,21 @@ class RVInformation {
         } catch (e: Exception) {
             false
         }
+    }
+
+    fun fetchCartItems(userId: String, onCartItemsFetched: (List<CartItem>) -> Unit) {
+        db.collection("users")
+            .document(userId)
+            .collection("cart")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("Firestore", "Error fetching cart items", e)
+                    return@addSnapshotListener
+                }
+
+                val cartItems = snapshot?.documents?.mapNotNull { it.toObject(CartItem::class.java) }
+                onCartItemsFetched(cartItems ?: emptyList())
+            }
     }
 
 
