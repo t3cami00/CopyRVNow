@@ -1,11 +1,17 @@
 package com.example.rvnow
+
 import android.app.DatePickerDialog
+import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,65 +24,45 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.rvnow.model.RV
 import java.util.Calendar
-
-//@Composable
-//fun SalesScreen(
-//    rvs: List<RV>,  // Pass the RV list directly
-//    navController: NavController
-//) {
-//    var searchQuery by remember { mutableStateOf("") } // Search state
-//
-//    Column(modifier = Modifier.padding(16.dp)) {
-//        // Search Bar
-//        OutlinedTextField(
-//            value = searchQuery,
-//            onValueChange = { searchQuery = it },
-//            label = { Text("Search RVs") },
-//            modifier = Modifier.fillMaxWidth(),
-//            singleLine = true
-//        )
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        // Filtered List of RVs
-//        val filteredRVs = rvs.filter {
-//            it.name.contains(searchQuery, ignoreCase = true)
-//        }
-//
-//        LazyColumn {
-//            items(filteredRVs) { rv ->
-//                RVItem(rv = rv)
-//            }
-//        }
-//    }
-//}
-
+import com.example.rvnow.viewmodels.RVViewModel
+import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
+import java.util.*
+//import androidx.compose.ui.Alignment
 @Composable
 fun SalesScreen(
-    rvs: List<RV>,
+    rvViewModel: RVViewModel = viewModel(),
     navController: NavController
 ) {
     var drivingType by remember { mutableStateOf("") }
     var startDate by remember { mutableStateOf("") }
     var endDate by remember { mutableStateOf("") }
+    var place by remember { mutableStateOf("") }
     val context = LocalContext.current
-
+    val rvList by rvViewModel.rvs.collectAsState()
     val calendar = Calendar.getInstance()
+    var isSearchPerformed by remember { mutableStateOf(false) }
 
     // Date Picker for Start Date
     val startDatePickerDialog = DatePickerDialog(
@@ -99,118 +85,111 @@ fun SalesScreen(
         calendar.get(Calendar.MONTH),
         calendar.get(Calendar.DAY_OF_MONTH)
     )
-
+    val image1 = rememberAsyncImagePainter("file:///android_asset/images/11.png")
     Column(modifier = Modifier.padding(10.dp)) {
 
+        Box(
+            modifier = Modifier
+//
+//                .padding(10.dp)
+                .fillMaxWidth()
+                .height(250.dp)
+                .padding(bottom = 16.dp)
+                .background(color = Color.White)
+        ) {
+
+            // Loading image from drawable or assets
+            Image(
+                painter = image1,
+                contentDescription = "RV Image",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+//                modifier = Modifier.width(30000.dp)
+
+            )
+
+            Text(
+                text = "Welcome to RVNow",
+                color = Color.White,
+                fontSize = 34.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
         // Start Date Field
-        Row(modifier = Modifier.padding(10.dp)){
+        Row(modifier = Modifier.padding(10.dp)) {
             Box(
                 modifier = Modifier
                     .weight(1f)
-//                    .width(250.dp)
-//                    .fillMaxWidth()
-                    .clickable { startDatePickerDialog.show() } // Apply clickable to the Box
+                    .clickable { startDatePickerDialog.show() }
+//                    .pointerInput(Unit) {
+//                        detectTapGestures(onTap = {
+//                            startDatePickerDialog.show()
+//                        })
+//                    }// Entire box is clickable
             ) {
                 OutlinedTextField(
                     value = startDate,
-                    onValueChange = { },
+                    onValueChange = { newValue ->
+                        startDate = newValue},
+                    readOnly = true,  // Prevent manual input
                     label = { Text("Start Date") },
-                    readOnly = true, // Prevent manual input
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().focusable(false)
                 )
             }
 
             Spacer(modifier = Modifier.width(20.dp))
 
-            // End Date Field
+            OutlinedTextField(
+                value = endDate,
+                onValueChange = {newValue ->
+                    endDate = newValue },
+                readOnly = true,  // Prevent typing
+                label = { Text("End Date") },
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { endDatePickerDialog.show() } // Open Date Picker
+            )
+
+        }
+
+
+
+        Row (modifier = Modifier.padding(10.dp)){
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+            ) {
+                OutlinedTextField(
+                    value = drivingType,
+                    onValueChange = { newValue ->
+                        drivingType = newValue},
+                    label = { Text("Driving Type") },
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = TextStyle(fontSize = 20.sp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(20.dp))
+
             Box(
                 modifier = Modifier.weight(1f)
-//                .fillMaxWidth()
-//                .clickable { endDatePickerDialog.show() }
             ) {
                 OutlinedTextField(
-                    value = endDate,
-                    onValueChange = { },
-                    label = { Text("End Date") },
-                    readOnly = true, // Prevent manual input
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-        }
-//        Box(
-//            modifier = Modifier.width(250.dp)
-//                .fillMaxWidth()
-//                .clickable { startDatePickerDialog.show() } // Apply clickable to the Box
-//        ) {
-//            OutlinedTextField(
-//                value = startDate,
-//                onValueChange = { },
-//                label = { Text("Start Date") },
-//                readOnly = true, // Prevent manual input
-//                modifier = Modifier.fillMaxWidth()
-//            )
-//        }
-//
-//        Spacer(modifier = Modifier.height(10.dp))
-
-        // End Date Field
-//        Box(
-//            modifier = Modifier.width(250.dp)
-////                .fillMaxWidth()
-////                .clickable { endDatePickerDialog.show() }
-//        ) {
-//            OutlinedTextField(
-//                value = endDate,
-//                onValueChange = { },
-//                label = { Text("End Date") },
-//                readOnly = true, // Prevent manual input
-//                modifier = Modifier.fillMaxWidth()
-//            )
-//        }
-//
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Row (){
-            Box(
-                modifier = Modifier
-//                    .fillMaxWidth()
-                    .weight(1f)
-//                    .height(45.dp)
-//                .clickable { startDatePickerDialog.show() } // Apply clickable to the Box
-            ) {
-                OutlinedTextField(
-                    value = startDate,
-                    onValueChange = { },
-                    label = { Text("Driving Type") },
-                    readOnly = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    textStyle = TextStyle(fontSize = 2.sp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(20.dp))
-
-            Box(
-                modifier = Modifier
-//                    .fillMaxWidth()
-                    .weight(1f)
-//                    .height(45.dp)
-//                .clickable { startDatePickerDialog.show() } // Apply clickable to the Box
-            ) {
-                OutlinedTextField(
-                    value = startDate,
-                    onValueChange = { },
+                    value = place,
+                    onValueChange = {
+                            newValue -> place = newValue },
                     label = { Text("Place") },
-                    readOnly = true, // Prevent manual input
+//                    readOnly = true, // Prevent manual input
                     modifier = Modifier.fillMaxWidth(),
-                    textStyle = TextStyle(fontSize = 2.sp)
+                    textStyle = TextStyle(fontSize = 20.sp)
                 )
             }
         }
 
 
         Spacer(modifier = Modifier.height(10.dp))
+
         Box(
             modifier = Modifier.
             fillMaxWidth()
@@ -218,21 +197,91 @@ fun SalesScreen(
                 .clickable { startDatePickerDialog.show() } // Apply clickable to the Box
         ) {
             Button(
-                onClick = { /* Perform search action here */ },
+                onClick = {
+                    isSearchPerformed = true
+                    drivingType = ""
+                    startDate = ""
+                    endDate = ""
+                    place = ""},
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Search")
             }
+
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+
+        val filteredRVs1 = rvList.filter {
+            !it.isForSale
         }
 
-        // Filtered List of RVs
-        val filteredRVs = rvs.filter {
-            it.name.contains(drivingType, ignoreCase = true)
+
+
+        val filteredRVs2 = if (isSearchPerformed) {
+            // Parse the user input dates using the same format as the DatePicker output.
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            // Ensure that parsed user dates are in UTC (Firebase stores in UTC)
+            dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+
+            val userSearchStart: Date? = if (startDate.isNotEmpty()) dateFormat.parse(startDate) else null
+            val userSearchEnd: Date? = if (endDate.isNotEmpty()) dateFormat.parse(endDate) else null
+
+            // Define a gap in milliseconds (2 days = 2 * 24 * 60 * 60 * 1000)
+            val gapMillis = 2L * 24 * 60 * 60 * 1000
+
+            rvList.filter { rv ->
+                val dateValid = if (userSearchStart != null && userSearchEnd != null && rv.bookedDates.isNotEmpty()) {
+                    val overlaps = rv.bookedDates.none { bookedDate ->
+                        // Convert Firebase timestamp (bookedDate["startDate"]) to Date in UTC
+                        val bookedStart = (bookedDate["startDate"] as? Timestamp)?.toDate() // Firebase stores in UTC
+                        val bookedEnd = (bookedDate["endDate"] as? Timestamp)?.toDate() // Firebase stores in UTC
+
+                        if (bookedStart != null && bookedEnd != null) {
+                            // Convert bookedStart and bookedEnd from UTC to UTC+2 (Finnish time)
+                            val timeZone = TimeZone.getTimeZone("GMT+02:00")
+                            val calendarStart = Calendar.getInstance(timeZone).apply { time = bookedStart }
+                            val calendarEnd = Calendar.getInstance(timeZone).apply { time = bookedEnd }
+
+                            // Now you have the start and end dates in Finnish time (UTC+2)
+                            val finnishStart = calendarStart.time
+                            val finnishEnd = calendarEnd.time
+
+                            // Check if the user search dates overlap with booked dates
+                            val condition = userSearchEnd.time > finnishStart.time - gapMillis &&
+                                    userSearchStart.time < finnishEnd.time + gapMillis
+
+                            Log.d("FilterCheck", "Checking RV: ${rv.id}, Start: $finnishStart, End: $finnishEnd, Overlaps: $condition")
+
+                            condition // should return a Boolean value here
+                        } else {
+                            false
+                        }
+                    }
+                    Log.d("FilterCheck", "RV: ${rv.id} is valid: $overlaps")
+
+                    overlaps // This should return a Boolean here
+
+                } else {
+                    true
+                }
+
+                // Ensure that `dateValid` is a Boolean (condition should be true or false)
+                dateValid
+
+            }
+        } else {
+            // If no search is performed, display all RVs for sale.
+            rvList.filter { it.isForSale }
         }
+
+
+
 
         LazyColumn {
-            items(filteredRVs) { rv ->
-                RVItem(rv = rv)
+            items(filteredRVs2) { rv ->
+                RVItem2(rv = rv,navController = navController)
+                Log.d("RV", "isForSale: ${rv.isForSale}")
+
             }
         }
     }
@@ -242,11 +291,12 @@ fun SalesScreen(
 
 
 @Composable
-fun RVItem2(rv: RV) {
+fun RVItem2(rv: RV, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable { navController.navigate("detail/${rv.id}?sourcePage=sales") },
         shape = RoundedCornerShape(8.dp)
     ) {
         Column {
@@ -256,19 +306,10 @@ fun RVItem2(rv: RV) {
                     contentDescription = rv.name ?: "Unknown Title",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp),
+                        .height(300.dp),
                     contentScale = ContentScale.Crop
                 )
-//                Image(
-//                    painter = rememberImagePainter(
-//                        data = "./images/Pho Bo(Beef Pho)1.jpg",
-//                    ),
-//                    contentDescription = rv.title ?: movie.name,
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(200.dp),
-//                    contentScale = ContentScale.Crop
-//                )
+
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -288,15 +329,6 @@ fun RVItem2(rv: RV) {
                 maxLines = 3
             )
 
-//            rv.release_date?.let { releaseDate ->
-//                Spacer(modifier = Modifier.height(4.dp))
-//                Text(
-//                    text = "Release Date: $releaseDate",
-//                    modifier = Modifier.padding(8.dp),
-//                    fontSize = 12.sp,
-//                    color = Color.Gray
-//                )
-//            }
         }
     }
 }

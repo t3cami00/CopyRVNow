@@ -70,7 +70,7 @@ fun RVNowApp(authViewModel: AuthViewModel,rvViewModel:RVViewModel) {
     val navController = rememberNavController()
 //    val image1 = rememberAsyncImagePainter("file:///android_asset/images/11.jpeg")
     val image1 = rememberAsyncImagePainter("file:///android_asset/images/11.jpeg")
-
+//    val sourcePage = backStackEntry.arguments?.getString("sourcePage") ?: "home"
     val startDestination = "home"
     Box(
         modifier = Modifier
@@ -111,18 +111,19 @@ fun RVNowApp(authViewModel: AuthViewModel,rvViewModel:RVViewModel) {
             composable("signup") { SignupScreen(navController = navController) }
             composable("Signin|up") { LoginScreen(navController = navController, authViewModel = authViewModel) }
             composable("rental") { RentalScreen(navController = navController) }
-            composable("sales") { SalesScreen(rvs = getSampleRVs(), navController = navController) }
+            composable("sales") { SalesScreen( navController = navController) }
             composable("profile") { ProfileScreen(
                 navController = navController,
                 authViewModel = AuthViewModel(),
                 rvViewModel = RVViewModel()
             ) }
 
-            composable("detail/{rvId}") { backStackEntry ->
+            composable("detail/{rvId}?sourcePage={sourcePage}") { backStackEntry ->
                 val rvId = backStackEntry.arguments?.getString("rvId") ?: ""
                 val rvViewModel: RVViewModel = viewModel()
+                val sourcePage = backStackEntry.arguments?.getString("sourcePage") ?: "home"
                 val authViewModel: AuthViewModel = viewModel()
-                RVDetailScreen(rvId = rvId, rvViewModel = rvViewModel, authViewModel= authViewModel,navController = navController)
+                RVDetailScreen(rvId = rvId, rvViewModel = rvViewModel, authViewModel= authViewModel,navController = navController,sourcePage=sourcePage)
 //                RVDetailScreen(rvId = rvId, rvViewModel = rvViewModel, navController = navController)
             }
         }

@@ -226,20 +226,13 @@ fun RentalScreen(
         }
         Spacer(modifier = Modifier.height(10.dp))
 
-
-
-//        / Format Firebase Timestamp to String
-//        fun formatTimestamp(timestamp: Timestamp?): String {
-//            val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-//            return timestamp?.toDate()?.let { simpleDateFormat.format(it) } ?: ""
+//        val filteredRVs1 = rvList.filter {
+//            !it.isForSale
 //        }
-        val filteredRVs1 = rvList.filter {
-            !it.isForSale
-        }
 
 
 
-        val filteredRVs = if (isSearchPerformed) {
+        val filteredRVs1 = if (isSearchPerformed) {
             // Parse the user input dates using the same format as the DatePicker output.
             val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
             // Ensure that parsed user dates are in UTC (Firebase stores in UTC)
@@ -251,7 +244,7 @@ fun RentalScreen(
             // Define a gap in milliseconds (2 days = 2 * 24 * 60 * 60 * 1000)
             val gapMillis = 2L * 24 * 60 * 60 * 1000
 
-            filteredRVs1.filter { rv ->
+            rvList.filter { rv ->
                 val dateValid = if (userSearchStart != null && userSearchEnd != null && rv.bookedDates.isNotEmpty()) {
                     val overlaps = rv.bookedDates.none { bookedDate ->
                         // Convert Firebase timestamp (bookedDate["startDate"]) to Date in UTC
@@ -293,16 +286,16 @@ fun RentalScreen(
             }
         } else {
             // If no search is performed, display all RVs for sale.
-            rvList.filter { it.isForSale == true }
+            rvList.filter { !it.isForSale}
         }
 
 
 
 
         LazyColumn {
-            items(filteredRVs) { rv ->
-                RVItem(rv = rv)
-                Log.d("RV", "isForSale: ${rv.isForSale}")
+            items(filteredRVs1) { rv ->
+                RVItem(rv = rv,navController = navController)
+                Log.d("RV", "isForRental: ${rv.isForRental}")
 
             }
         }
@@ -313,23 +306,19 @@ fun RentalScreen(
 
 
 @Composable
-fun RVItem(rv: RV) {
+fun RVItem(rv: RV,navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+        .clickable { navController.navigate("detail/${rv.id}?sourcePage=rental") },
         shape = RoundedCornerShape(8.dp)
     ) {
         Column {
             rv.imageUrl?.let { imagePath ->
-                Image(
-                    painter = rememberImagePainter(data = rv.imageUrl),
-                    contentDescription = rv.name ?: "Unknown Title",
-                    modifier = Modifier
+                Image(painter = rememberImagePainter(data = rv.imageUrl), contentDescription = rv.name ?: "Unknown Title", modifier = Modifier
                         .fillMaxWidth()
-                        .height(300.dp),
-                    contentScale = ContentScale.Crop
-                )
+                        .height(300.dp), contentScale = ContentScale.Crop)
 
             }
 

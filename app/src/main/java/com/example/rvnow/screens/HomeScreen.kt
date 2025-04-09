@@ -480,7 +480,7 @@ private fun RVCard(
         modifier = Modifier
             .width(cardWidth)
             .height(cardHeight)
-            .clickable { navController.navigate("detail/${rv.id}") },
+            .clickable { navController.navigate("detail/${rv.id}?sourcePage=home") },
         shape = RoundedCornerShape(CARD_CORNER_RADIUS)
     ) {
         Column {

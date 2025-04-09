@@ -166,7 +166,8 @@ fun RVDetailScreen(
     rvId: String,
     rvViewModel: RVViewModel,
     authViewModel: AuthViewModel,
-    navController: NavController
+    navController: NavController,
+    sourcePage: String
 ) {
     // Collect the list of RVs from the ViewModel
     val rvList by rvViewModel.rvs.collectAsState()
@@ -242,9 +243,9 @@ fun RVDetailScreen(
             IconButton(
                 onClick = {
                     // Go back to the Home screen
-                    navController.navigate("home") {
+                    navController.navigate(sourcePage) {
                         // Optional: clear backstack to avoid going back again
-                        popUpTo("home") { inclusive = true }
+                        popUpTo(sourcePage) { inclusive = true }
                     }
                 }
             ) {
