@@ -16,14 +16,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.rvnow.model.Comment
 import kotlinx.coroutines.Job
-//import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+
 import com.example.rvnow.model.CartItem
 import com.example.rvnow.model.Rating
-//import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
-import com.google.firebase.Timestamp
+
 class RVViewModel : ViewModel() {
     private val rvApiService = RVInformation()
     private val _rvs = MutableStateFlow<List<RV>>(emptyList())
@@ -52,14 +48,10 @@ class RVViewModel : ViewModel() {
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems
 
-//    // In RVViewModel.kt
-//    private val _cartItems = mutableStateListOf<CartItem>()
-//    val cartItems: List<CartItem> get() = _cartItems
 
-    //    private val _averageRating = MutableLiveData<Float>()
-//    val averageRating: LiveData<Float> = _averageRating
     // 本地收藏状态管理
     private val _favorites = mutableStateMapOf<String, Boolean>()
+//    val favoriteRVs = rvList.filter { it.id in favoriteRVIds }
 
     init {
         fetchRVs()
@@ -205,7 +197,8 @@ class RVViewModel : ViewModel() {
         }
     }
     // In RVViewModel
-    fun toggleFavorite(userId: String, rvId: String, onComplete: (Boolean) -> Unit = { _ -> }) {
+    fun toggleFavorite(userId: String, rvId: String, isForRental: Boolean,
+                       isForSale: Boolean, onComplete: (Boolean) -> Unit = { _ -> }) {
         val currentlyFavorite = _favorites[rvId] ?: false
         // Optimistic update - change UI immediately
         _favorites[rvId] = !currentlyFavorite
@@ -214,9 +207,9 @@ class RVViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val success = if (currentlyFavorite) {
-                    rvApiService.removeFromFavorites(userId, rvId)
+                    rvApiService.removeFromFavorites(userId, rvId,isForRental,isForSale)
                 } else {
-                    rvApiService.addToFavorites(userId, rvId)
+                    rvApiService.addToFavorites(userId, rvId,isForRental,isForSale)
                 }
 
                 if (success) {
@@ -229,6 +222,14 @@ class RVViewModel : ViewModel() {
             }
         }
     }
+
+    fun loadFavoriteRVIds(userId: String, onResult: (List<String>) -> Unit) {
+        viewModelScope.launch {
+            val favoriteIds = rvApiService.getAllFavoriteRVIds(userId)
+            onResult(favoriteIds)
+        }
+    }
+
 
     // In RVViewModel
 
@@ -273,6 +274,17 @@ class RVViewModel : ViewModel() {
             } catch (e: Exception) {
                 // Handle error
             }
+        }
+    }
+
+    private val _favoriteRVIds = MutableStateFlow<List<String>>(emptyList())
+    val favoriteRVIds: StateFlow<List<String>> = _favoriteRVIds
+
+    fun loadFavoriteRVIds(userId: String) {
+        viewModelScope.launch {
+            // Make sure this is calling the appropriate function to fetch favorite RVs from the API or Firestore.
+            val favoriteIds = rvApiService.getAllFavoriteRVIds(userId)
+            _favoriteRVIds.value = favoriteIds
         }
     }
 

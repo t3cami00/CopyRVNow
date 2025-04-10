@@ -6,5 +6,7 @@ data class Favourite(
     val rvId: String = "",
     val name: String = "",
     val imageUrl:String = "",
+    val isForRental: Boolean = false,
+    val isForSale: Boolean = false,
     val createdat: Timestamp = Timestamp.now()
 )

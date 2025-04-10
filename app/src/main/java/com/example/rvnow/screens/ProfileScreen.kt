@@ -37,6 +37,10 @@ import com.example.rvnow.viewmodels.AuthViewModel
 import com.example.rvnow.viewmodels.RVViewModel
 import com.google.firebase.auth.FirebaseUser
 import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.runtime.LaunchedEffect
+import coil.compose.AsyncImage
+import coil.compose.rememberImagePainter
 
 @Composable
 fun ProfileScreen(
@@ -45,9 +49,20 @@ fun ProfileScreen(
     rvViewModel: RVViewModel = viewModel()
 ) {
     val rvList by rvViewModel.rvs.collectAsState()
+    val currentUser by authViewModel.userInfo.observeAsState()
     val userInfo by authViewModel.userInfo.observeAsState()
     val fullName by authViewModel.fullName.observeAsState()
-    val favoriteRVs = rvList.filter { it.isFavorite }
+
+    val favoriteRVIds by rvViewModel.favoriteRVIds.collectAsState()
+    val favoriteRVs = rvList.filter { it.id in favoriteRVIds }
+
+    LaunchedEffect(currentUser) {
+        currentUser?.uid?.let {
+            rvViewModel.loadFavoriteRVIds(it)
+        }
+    }
+
+
 
     Column(
         modifier = Modifier
@@ -67,6 +82,7 @@ fun ProfileScreen(
                 .align(Alignment.End)
                 .padding(top = 16.dp, end = 4.dp)
         ) {
+
             Icon(
                 imageVector = Icons.Default.Logout,
                 contentDescription = "Logout",
@@ -95,18 +111,18 @@ fun ProfileScreen(
             // 租赁收藏
             FavoriteSection(
                 title = "Rental Favorites",
-                items = rvList.filter { it.type == RVType.Rental }.take(2),
+                items = rvList.filter { it.type == RVType.Rental },
                 navController = navController
             )
 
             CustomDivider()
 
-            // 购买收藏
-            FavoriteSection(
-                title = "Purchase Favorites",
-                items = rvList.filter { it.type == RVType.Sales }.take(2),
-                navController = navController
-            )
+//            // 购买收藏
+//            FavoriteSection(
+//                title = "Purchase Favorites",
+//                items = rvList.filter { it.type == RVType.Sales }.take(2),
+//                navController = navController
+//            )
 
             CustomDivider()
 
@@ -129,22 +145,33 @@ private fun UserInfoSection(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 用户头像
+
         Box(
             modifier = Modifier
                 .size(160.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(80.dp)
-                    .align(Alignment.Center),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
-            )
+            val imageUrl = userInfo?.photoUrl?.toString()
+
+            if (!imageUrl.isNullOrEmpty()) {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = "Profile picture",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.size(160.dp).clip(CircleShape)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Default profile icon",
+                    modifier = Modifier.size(80.dp),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
         }
+
 
         Spacer(modifier = Modifier.height(16.dp))
 

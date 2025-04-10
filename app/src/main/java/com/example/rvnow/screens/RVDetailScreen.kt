@@ -173,6 +173,8 @@ fun RVDetailScreen(
     val rvList by rvViewModel.rvs.collectAsState()
     // Find the RV that matches the provided rvId
     val rv = rvList.firstOrNull { it.id == rvId }
+    val isForRental = rv?.isForRental ?: false
+    val isForSale = rv?.isForSale ?: false
 
     val comments by rvViewModel.comments.collectAsState(emptyList())
     val ratings by rvViewModel.ratings.collectAsState(emptyList())
@@ -339,8 +341,10 @@ fun RVDetailScreen(
                                             currentUser?.uid?.let { userId ->
                                                 isProcessingFavorite = true
                                                 rvViewModel.toggleFavorite(
-                                                    userId,
-                                                    rvId
+                                                    userId = userId,
+                                                    rvId = rvId,
+                                                    isForRental = isForRental,
+                                                    isForSale = isForSale
                                                 ) { success ->
                                                     isProcessingFavorite = false
                                                     if (success) {

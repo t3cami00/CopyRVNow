@@ -134,7 +134,7 @@ class RVInformation {
     }
 
     // Add this to your RVApiService class
-    suspend fun addToFavorites(userId: String, rvId: String): Boolean {
+    suspend fun addToFavorites(userId: String, rvId: String,isForRental:Boolean, isForSale:Boolean): Boolean {
         return try {
             val favoritesRef = FirebaseFirestore.getInstance()
                 .collection("users")
@@ -144,8 +144,12 @@ class RVInformation {
 
             // Create a document with just the RV ID (you can add more fields if needed)
             favoritesRef.set(mapOf(
+
                 "rvId" to rvId,
-                "timestamp" to FieldValue.serverTimestamp()
+                "isForRental" to isForRental,
+                "isForSale" to isForSale,
+
+                "createdat" to FieldValue.serverTimestamp()
             )).await()
             true
         } catch (e: Exception) {
@@ -153,7 +157,7 @@ class RVInformation {
         }
     }
 
-    suspend fun removeFromFavorites(userId: String, rvId: String): Boolean {
+    suspend fun removeFromFavorites(userId: String, rvId: String,isForRental:Boolean,isForSale:Boolean): Boolean {
         return try {
             FirebaseFirestore.getInstance()
                 .collection("users")
@@ -182,6 +186,21 @@ class RVInformation {
             false
         }
     }
+
+    suspend fun getAllFavoriteRVIds(userId: String): List<String> {
+        return try {
+            val snapshot = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .collection("favorites")
+                .get()
+                .await()
+            snapshot.documents.map { it.id } // assumes doc ID = rvId
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
 
     fun getAverageRating(rvId: String, onResult: (Float) -> Unit) {
         val db = FirebaseFirestore.getInstance()
