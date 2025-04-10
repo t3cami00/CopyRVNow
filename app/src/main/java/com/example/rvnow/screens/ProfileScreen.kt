@@ -53,14 +53,14 @@ fun ProfileScreen(
     val userInfo by authViewModel.userInfo.observeAsState()
     val fullName by authViewModel.fullName.observeAsState()
 
-    val favoriteRVIds by rvViewModel.favoriteRVIds.collectAsState()
-    val favoriteRVs = rvList.filter { it.id in favoriteRVIds }
-
-    LaunchedEffect(currentUser) {
-        currentUser?.uid?.let {
-            rvViewModel.loadFavoriteRVIds(it)
-        }
-    }
+//    val favoriteRVIds by rvViewModel.favoriteRVIds.collectAsState()
+//    val favoriteRVs = rvList.filter { it.id in favoriteRVIds }
+//
+//    LaunchedEffect(currentUser) {
+//        currentUser?.uid?.let {
+//            rvViewModel.loadFavoriteRVIds(it)
+//        }
+//    }
 
 
 
@@ -99,14 +99,14 @@ fun ProfileScreen(
         // 收藏和发布区域
         Column(verticalArrangement = Arrangement.spacedBy(36.dp)) {
             // 收藏车辆部分
-            if (favoriteRVs.isNotEmpty()) {
-                FavoriteSection(
-                    title = "My Favorites",
-                    items = favoriteRVs,
-                    navController = navController
-                )
-                CustomDivider()
-            }
+//            if (favoriteRVs.isNotEmpty()) {
+//                FavoriteSection(
+//                    title = "My Favorites",
+//                    items = favoriteRVs,
+//                    navController = navController
+//                )
+//                CustomDivider()
+//            }
 
             // 租赁收藏
             FavoriteSection(

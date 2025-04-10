@@ -283,8 +283,8 @@ class RVViewModel : ViewModel() {
     fun loadFavoriteRVIds(userId: String) {
         viewModelScope.launch {
             // Make sure this is calling the appropriate function to fetch favorite RVs from the API or Firestore.
-            val favoriteIds = rvApiService.getAllFavoriteRVIds(userId)
-            _favoriteRVIds.value = favoriteIds
+            val favoriteRVIds = rvApiService.getAllFavoriteRVIds(userId)
+            _favoriteRVIds.value = favoriteRVIds
         }
     }
 
