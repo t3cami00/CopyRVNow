@@ -617,17 +617,17 @@ fun StarRatingBar2(
                     imageVector = Icons.Filled.Star,
                     contentDescription = "Star",
                     tint = if (rating >= starValue) Color.Yellow
-                    else if (averageRating >= starValue) Color.Yellow.copy(alpha = 0.1f)
+                    else if (averageRating >= starValue) Color.Yellow.copy(alpha = 0.2f)
                     else Color.Gray,
                     modifier = Modifier
-                        .size(5.dp)
+                        .size(25.dp)
                         .clickable { onRatingChanged(starValue) }
                 )
             }
         }
 
         // Display average rating text
-//        Spacer(modifier = Modifier.width(22.dp))
+        Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = "%.1f/10".format(averageRating),
             style = MaterialTheme.typography.bodyLarge,
@@ -799,7 +799,7 @@ private fun RVCard(
                 // Title row
                 Box(
                     modifier = Modifier.fillMaxWidth(),
-//                    verticalAlignment = Alignment.CenterVertically,
+                    contentAlignment = Alignment.Center, // This centers the content both horizontally and vertically
 //                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
@@ -808,9 +808,10 @@ private fun RVCard(
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-//                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.fillMaxWidth() // This ensures the Text is centered horizontally within the Box
                     )
                 }
+
                 // Description with exactly 2 lines
                 Text(
                     text = features,
@@ -831,7 +832,7 @@ private fun RVCard(
 //                        contentAlignment = Alignment.Start
                     ) {
                         // Display stars and average rating
-                        StarRatingBar(
+                        StarRatingBar2(
                             rating = rating,
                             averageRating = averageRating, // Show average behind the stars
                             onRatingChanged = { newRating ->
@@ -841,7 +842,7 @@ private fun RVCard(
                     }
 
 
-
+                    Spacer(modifier = Modifier.width(28.dp))
 
                     IconButton(
                         onClick = {
