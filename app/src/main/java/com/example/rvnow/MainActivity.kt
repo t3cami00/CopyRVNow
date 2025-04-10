@@ -101,7 +101,7 @@ fun RVNowApp(authViewModel: AuthViewModel,rvViewModel:RVViewModel) {
             startDestination = startDestination,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("home") { HomeScreen(navController = navController) }
+            composable("home") { HomeScreen(navController = navController,authViewModel= authViewModel,) }
             composable("cart") { CartScreen(
                 navController = navController,
                 authViewModel = authViewModel,

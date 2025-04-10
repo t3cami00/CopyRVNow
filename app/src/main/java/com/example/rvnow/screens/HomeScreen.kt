@@ -1,5 +1,6 @@
 package com.example.rvnow
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -35,11 +37,97 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.rvnow.model.RV
 import com.example.rvnow.viewmodels.RVViewModel
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
+import android.widget.RatingBar
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
+//import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+//import androidx.compose.ui.Alignment
+//import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+//import androidx.compose.ui.graphics.Color
+//import androidx.compose.ui.layout.ContentScale
+//import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+//import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+//import com.example.rvnow.model.RV
+//import com.example.rvnow.viewmodels.RVViewModel
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+//import androidx.compose.foundation.shape.RoundedCornerShape
+//import androidx.compose.material.*
+//import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.runtime.*
 
+import androidx.compose.material3.Icon
+
+import androidx.compose.foundation.layout.Row
+
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.*
+//import androidx.compose.runtime.Composable
+
+import androidx.compose.foundation.layout.Column
+
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.runtime.livedata.observeAsState
+
+import androidx.compose.runtime.setValue
+
+import androidx.compose.ui.platform.LocalDensity
+//import androidx.compose.ui.text.style.TextAlign
+import com.example.rvnow.model.Comment
+import com.example.rvnow.model.Rating
+
+import java.util.*
+import com.example.rvnow.viewmodels.AuthViewModel
+import androidx.compose.foundation.layout.Column as Column
+//import android.widget.Toast
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.FlipToBack
+import androidx.compose.material.icons.filled.StarHalf
+import androidx.compose.ui.platform.LocalContext
 
 private val SECTION_SPACING_LARGE = 32.dp
 private val SECTION_SPACING = 24.dp
@@ -66,10 +154,14 @@ private val BUTTON_CORNER_RADIUS = 8.dp
 private val CARD_CORNER_RADIUS = 12.dp
 private val CARD_CONTENT_PADDING = 12.dp
 
+
+
+
 @Composable
 fun HomeScreen(
     rvViewModel: RVViewModel = viewModel(),
-    navController: NavController
+    navController: NavController,
+    authViewModel: AuthViewModel
 ) {
     val rvList by rvViewModel.rvs.collectAsState()
     val heroImage = rememberAsyncImagePainter("file:///android_asset/images/brighter_image_2.png")
@@ -135,7 +227,9 @@ fun HomeScreen(
             rvs = rvList.filter { !it.isForSale && it.isPopular },
             navController = navController,
             horizontalPadding = horizontalPadding,
-            viewModel = rvViewModel
+            authViewModel = authViewModel,
+            rvViewModel = rvViewModel
+
         )
 
         Spacer(modifier = Modifier.height(betweenRVsSpacing))
@@ -155,8 +249,10 @@ fun HomeScreen(
             rvs = rvList.filter { it.isForSale && it.isPopular },
             navController = navController,
             horizontalPadding = horizontalPadding,
-            viewModel = rvViewModel
+            authViewModel = authViewModel,
+            rvViewModel = rvViewModel
         )
+
 
         Spacer(modifier = Modifier.height(sectionSpacing))
     }
@@ -410,13 +506,61 @@ private fun CustomActionButton(
     }
 }
 
+//@Composable
+//private fun PopularRVsSection(
+//    title: String,
+//    rvs: List<RV>,
+//    navController: NavController,
+//    horizontalPadding: Dp,
+//    authViewModel: AuthViewModel,
+//    rvViewModel: RVViewModel
+//) {
+//    Column(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(horizontal = horizontalPadding)
+//    ) {
+//        Text(
+//            text = title,
+//            color = Color.Black,
+//            fontSize = 20.sp,
+//            fontWeight = FontWeight.Bold,
+//            modifier = Modifier.padding(
+//                start = SECTION_TITLE_PADDING_START,
+//                bottom = SECTION_TITLE_PADDING_BOTTOM
+//            )
+//        )
+//
+//        LazyRow(
+//            horizontalArrangement = Arrangement.spacedBy(CARD_SPACING),
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            items(rvs) { rv ->
+//                RVCard(
+//                    rv = rv,
+////                    rvId=rvId,
+//                    title = rv.name ?: if (title.contains("Rental")) "Luxury RV" else "Premium RV",
+//                    features = rv.description ?: if (title.contains("Rental"))
+//                        "Family | Amazing Features | Comfort..."
+//                    else "Spacious | Luxury | All Included",
+//                    navController = navController,
+//                    horizontalPadding = horizontalPadding,
+//                    rvViewModel = rvViewModel,
+//                    authViewModel=authViewModel,
+//
+//                )
+//            }
+//        }
+//    }
+//}
 @Composable
 private fun PopularRVsSection(
     title: String,
     rvs: List<RV>,
     navController: NavController,
     horizontalPadding: Dp,
-    viewModel: RVViewModel
+    authViewModel: AuthViewModel,
+    rvViewModel: RVViewModel
 ) {
     Column(
         modifier = Modifier
@@ -441,13 +585,15 @@ private fun PopularRVsSection(
             items(rvs) { rv ->
                 RVCard(
                     rv = rv,
+                    rvId = rv.id,  // Correctly passing rvId
                     title = rv.name ?: if (title.contains("Rental")) "Luxury RV" else "Premium RV",
                     features = rv.description ?: if (title.contains("Rental"))
                         "Family | Amazing Features | Comfort..."
                     else "Spacious | Luxury | All Included",
                     navController = navController,
                     horizontalPadding = horizontalPadding,
-                    viewModel = viewModel
+                    rvViewModel = rvViewModel,
+                    authViewModel = authViewModel
                 )
             }
         }
@@ -455,19 +601,79 @@ private fun PopularRVsSection(
 }
 
 @Composable
+fun StarRatingBar2(
+    rating: Float,
+    averageRating: Float,
+    onRatingChanged: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+    starCount: Int = 5
+) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        // Display stars
+        Row {
+            for (i in 1..starCount) {
+                val starValue = i.toFloat()
+                Icon(
+                    imageVector = Icons.Filled.Star,
+                    contentDescription = "Star",
+                    tint = if (rating >= starValue) Color.Yellow
+                    else if (averageRating >= starValue) Color.Yellow.copy(alpha = 0.3f)
+                    else Color.Gray,
+                    modifier = Modifier
+                        .size(5.dp)
+                        .clickable { onRatingChanged(starValue) }
+                )
+            }
+        }
+
+        // Display average rating text
+//        Spacer(modifier = Modifier.width(22.dp))
+        Text(
+            text = "%.1f/10".format(averageRating),
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+
+@Composable
 private fun RVCard(
-    rv: RV,
+    authViewModel: AuthViewModel,
+    rv:RV,
+    rvId: String,
     title: String,
     features: String,
     navController: NavController,
     horizontalPadding: Dp,
-    viewModel: RVViewModel,
+    rvViewModel: RVViewModel,
 ) {
+    val rvList by rvViewModel.rvs.collectAsState()
+    // Find the RV that matches the provided rvId
+    val rvSpecific = rvList.firstOrNull { it.id == rvId }
     var currentImageIndex by remember { mutableStateOf(0) }
     val allImages = listOfNotNull(rv.imageUrl) + (rv.additionalImages ?: emptyList())
     val visibleImages = allImages.take(6)
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val cardWidth = (screenWidth - horizontalPadding * 2 - CARD_SPACING) * 0.8f
+    val comments by rvViewModel.comments.collectAsState(emptyList())
+    val ratings by rvViewModel.ratings.collectAsState(emptyList())
+    val context = LocalContext.current
+    val image1 = rememberAsyncImagePainter("file:///android_asset/images/11.png")
+
+    val isForRental = rvSpecific?.isForRental ?: false
+    val imageUrl = rvSpecific?.imageUrl ?: ""
+
+    val isForSale = rvSpecific?.isForSale ?: false
+
+    var rating by remember { mutableStateOf(8.5f) }
+    var isFavorite by remember { mutableStateOf(false) }
+    val isLoggedIn by authViewModel.isLoggedIn.observeAsState(initial = false)
+    var showWarningDialog by remember { mutableStateOf(false) }
+    val currentUser by authViewModel.userInfo.observeAsState()
+    val averageRating by rvViewModel.averageRating.observeAsState(0f)
+
+
 
     // Fixed height for the card
     val cardHeight = 280.dp
@@ -475,13 +681,27 @@ private fun RVCard(
     val imageHeight = 192.dp
     // Fixed height for the text section (card height - image height - padding)
     val textSectionHeight = cardHeight - imageHeight - CARD_CONTENT_PADDING * 2
+    var isProcessingFavorite by remember { mutableStateOf(false) }
+    LaunchedEffect(rvId, currentUser?.uid) {
+        currentUser?.uid?.let { userId ->
+            rvViewModel.checkFavoriteStatus(userId, rvId) { isFav ->
+                isFavorite = isFav
+            }
+        } ?: run {
+            // User not logged in, set to false
+            isFavorite = false
+        }
+    }
 
+    LaunchedEffect(rvId) {
+        rvViewModel.loadComments(rvId, onComplete = {})
+    }
     Card(
         modifier = Modifier
             .width(cardWidth)
             .height(cardHeight)
-            .clickable { navController.navigate("detail/${rv.id}?sourcePage=home") },
-        shape = RoundedCornerShape(CARD_CORNER_RADIUS)
+//            .clickable { navController.navigate("detail/${rvSpecific.id}?sourcePage=home") },
+//        shape = RoundedCornerShape(CARD_CORNER_RADIUS)
     ) {
         Column {
             // Image section with fixed height
@@ -577,10 +797,10 @@ private fun RVCard(
                     .padding(horizontal = CARD_CONTENT_PADDING, vertical = CARD_CONTENT_PADDING)
             ) {
                 // Title row
-                Row(
+                Box(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+//                    verticalAlignment = Alignment.CenterVertically,
+//                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
                         text = title,
@@ -588,56 +808,106 @@ private fun RVCard(
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
+//                        modifier = Modifier.weight(1f)
                     )
+                }
+                // Description with exactly 2 lines
+                Text(
+                    text = features,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 18.sp,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(start = 12.dp),
+                Row(
+//                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(start = 2.dp),
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Rating",
-                            tint = Color(0xFFFFC107),
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Text(
-                            text = "%.1f".format(rv.averageRating),
-                            fontSize = 14.sp,
-                            color = Color.Black,
-                            modifier = Modifier.padding(start = 4.dp)
+
+                    Box(
+//                        modifier = Modifier.fillMaxWidth(),
+//                        contentAlignment = Alignment.Start
+                    ) {
+                        // Display stars and average rating
+                        StarRatingBar(
+                            rating = rating,
+                            averageRating = averageRating, // Show average behind the stars
+                            onRatingChanged = { newRating ->
+                                rating = newRating
+                            }
                         )
                     }
 
-//                    IconButton(
-//                        onClick = { viewModel.toggleFavorite(rv.id) },
-//                        modifier = Modifier.size(24.dp)
-//                    ) {
-//                        Icon(
-//                            imageVector = if (rv.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-//                            contentDescription = "Favorite",
-//                            tint = if (rv.isFavorite) Color.Red else Color.Gray,
-//                            modifier = Modifier.size(20.dp)
-//                        )
-//                    }
-//                }
 
-                    Spacer(modifier = Modifier.height(4.dp))
 
-                    // Description with exactly 2 lines
-                    Text(
-                        text = features,
-                        fontSize = 14.sp,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        lineHeight = 18.sp,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+
+                    IconButton(
+                        onClick = {
+                            if (isProcessingFavorite) return@IconButton
+                            if (!isLoggedIn) {
+                                // If the user is not logged in, show a warning
+                                showWarningDialog = true
+                                return@IconButton
+                            }
+                            // Optimistic UI update
+                            isFavorite = !isFavorite
+
+                            currentUser?.uid?.let { userId ->
+                                isProcessingFavorite = true
+                                rvViewModel.toggleFavorite(
+                                    userId = userId,
+                                    rvId = rvId,
+                                    isForRental = isForRental,
+                                    imageUrl = imageUrl,
+                                    isForSale = isForSale
+                                ) { success ->
+                                    isProcessingFavorite = false
+                                    if (success) {
+                                        // Success - state is already updated
+                                        Toast.makeText(
+                                            context,
+                                            if (isFavorite) "Added to favorites" else "Removed from favorite",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else {
+                                        // Show error and revert UI state
+                                        isFavorite = !isFavorite
+                                        Toast.makeText(
+                                            context,
+                                            "Failed to update favorites",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            } ?: run {
+                                showWarningDialog = true
+                            }
+                        },
+                        enabled = !isProcessingFavorite
+                    ) {
+                        if (isProcessingFavorite) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        } else {
+                            Icon(
+                                imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                                contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                                tint = if (isFavorite) Color.Red else Color.Gray,
+                                modifier = Modifier.size(44.dp)
+                            )
+                        }
+                    }
+
+                }
+
+
+
+
 
                     // Spacer to push content up if there's extra space
-                    Spacer(modifier = Modifier.weight(1f))
+//                    Spacer(modifier = Modifier.weight(1f))
                 }
             }
         }
     }
-}

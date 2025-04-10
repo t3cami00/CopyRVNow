@@ -60,7 +60,7 @@ fun ProfileScreen(
             .padding(horizontal = 16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        // 优化后的登出按钮（图标式）
+        // 优化后的登出按g钮（图标式）
         IconButton(
             onClick = {
                 authViewModel.logout()
