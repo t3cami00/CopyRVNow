@@ -18,6 +18,7 @@ import com.example.rvnow.model.Comment
 import kotlinx.coroutines.Job
 
 import com.example.rvnow.model.CartItem
+import com.example.rvnow.model.Favourite
 import com.example.rvnow.model.Rating
 
 class RVViewModel : ViewModel() {
@@ -47,6 +48,9 @@ class RVViewModel : ViewModel() {
 
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems
+
+    private val _fetchedFavourites= MutableStateFlow<List<Favourite>>(emptyList())
+    val fetchedFavourites: StateFlow<List<Favourite>> = _fetchedFavourites
 
 
     // 本地收藏状态管理
@@ -197,7 +201,7 @@ class RVViewModel : ViewModel() {
         }
     }
     // In RVViewModel
-    fun toggleFavorite(userId: String, rvId: String, isForRental: Boolean,
+    fun toggleFavorite(userId: String, rvId: String,imageUrl:String,isForRental: Boolean,
                        isForSale: Boolean, onComplete: (Boolean) -> Unit = { _ -> }) {
         val currentlyFavorite = _favorites[rvId] ?: false
         // Optimistic update - change UI immediately
@@ -207,9 +211,9 @@ class RVViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val success = if (currentlyFavorite) {
-                    rvApiService.removeFromFavorites(userId, rvId,isForRental,isForSale)
+                    rvApiService.removeFromFavorites(userId, rvId,imageUrl,isForRental,isForSale)
                 } else {
-                    rvApiService.addToFavorites(userId, rvId,isForRental,isForSale)
+                    rvApiService.addToFavorites(userId, rvId,imageUrl,isForRental,isForSale)
                 }
 
                 if (success) {
@@ -223,15 +227,46 @@ class RVViewModel : ViewModel() {
         }
     }
 
-    fun loadFavoriteRVIds(userId: String, onResult: (List<String>) -> Unit) {
-        viewModelScope.launch {
-            val favoriteIds = rvApiService.getAllFavoriteRVIds(userId)
-            onResult(favoriteIds)
+//    fun loadFavoriteRVIds(userId: String, onResult: (List<String>) -> Unit) {
+//        viewModelScope.launch {
+//            val favorites = rvApiService.getAllFavorites(userId)
+//            onResult(favorites)
+//        }
+//
+//    fun fetchCartItems(userId: String) {
+//        viewModelScope.launch {
+//            try {
+//                rvApiService.fetchedCartItems(userId) { cartItems ->
+//                    // Clear the list and add new items
+//                    _cartItems.value = cartItems // Directly assigning the new list
+//                }
+//            } catch (e: Exception) {
+//                // Handle error
+//            }
+//        }
+//    }
+
+//    fun loadFavorites(userId: String) {
+//        viewModelScope.launch {
+//            try {
+//                rvApiService.getAllFavorites(userId) { fetchedFavourites ->
+//                    // Clear the list and add new items
+//                    _fetchedFavourites.value = fetchedFavourites // Directly assigning the new list
+//                }
+//            } catch (e: Exception) {
+//                // Handle error
+//            }
+//        }
+//    }
+    fun loadFavorites(userId: String) {
+        rvApiService.getAllFavorites(userId) { fetchedFavourites ->
+            _fetchedFavourites.value = fetchedFavourites
         }
     }
 
 
-    // In RVViewModel
+
+
 
 
     fun addToCart(userId: String, rv: RV, callback: (Boolean) -> Unit) {
@@ -267,7 +302,7 @@ class RVViewModel : ViewModel() {
     fun fetchCartItems(userId: String) {
         viewModelScope.launch {
             try {
-                rvApiService.fetchCartItems(userId) { cartItems ->
+                rvApiService.fetchedCartItems(userId) { cartItems ->
                     // Clear the list and add new items
                     _cartItems.value = cartItems // Directly assigning the new list
                 }
@@ -277,16 +312,15 @@ class RVViewModel : ViewModel() {
         }
     }
 
-    private val _favoriteRVIds = MutableStateFlow<List<String>>(emptyList())
-    val favoriteRVIds: StateFlow<List<String>> = _favoriteRVIds
 
-    fun loadFavoriteRVIds(userId: String) {
-        viewModelScope.launch {
-            // Make sure this is calling the appropriate function to fetch favorite RVs from the API or Firestore.
-            val favoriteRVIds = rvApiService.getAllFavoriteRVIds(userId)
-            _favoriteRVIds.value = favoriteRVIds
-        }
-    }
+//
+//    fun loadFavorites(userId: String) {
+//        viewModelScope.launch {
+//            // Make sure this is calling the appropriate function to fetch favorite RVs from the API or Firestore.
+//            val favorites = rvApiService.getAllFavorites(userId)
+//            _favoriteRVIds.value = favorites
+//        }
+//    }
 
 
 

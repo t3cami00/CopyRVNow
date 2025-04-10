@@ -1,5 +1,6 @@
 package com.example.rvnow
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -32,15 +33,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.rvnow.model.RV
-import com.example.rvnow.model.RVType
 import com.example.rvnow.viewmodels.AuthViewModel
 import com.example.rvnow.viewmodels.RVViewModel
 import com.google.firebase.auth.FirebaseUser
 import androidx.compose.foundation.clickable
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.runtime.LaunchedEffect
-import coil.compose.AsyncImage
-import coil.compose.rememberImagePainter
+import com.example.rvnow.model.Favourite
 
 @Composable
 fun ProfileScreen(
@@ -48,20 +46,12 @@ fun ProfileScreen(
     authViewModel: AuthViewModel,
     rvViewModel: RVViewModel = viewModel()
 ) {
+    val isLoggedIn by authViewModel.isLoggedIn.observeAsState(initial = false)
     val rvList by rvViewModel.rvs.collectAsState()
-    val currentUser by authViewModel.userInfo.observeAsState()
     val userInfo by authViewModel.userInfo.observeAsState()
     val fullName by authViewModel.fullName.observeAsState()
-
-//    val favoriteRVIds by rvViewModel.favoriteRVIds.collectAsState()
-//    val favoriteRVs = rvList.filter { it.id in favoriteRVIds }
-//
-//    LaunchedEffect(currentUser) {
-//        currentUser?.uid?.let {
-//            rvViewModel.loadFavoriteRVIds(it)
-//        }
-//    }
-
+    val fetchedFavourites by rvViewModel.fetchedFavourites.collectAsState()
+    Log.d("FetchedFavourites", fetchedFavourites.toString())
 
 
     Column(
@@ -82,7 +72,6 @@ fun ProfileScreen(
                 .align(Alignment.End)
                 .padding(top = 16.dp, end = 4.dp)
         ) {
-
             Icon(
                 imageVector = Icons.Default.Logout,
                 contentDescription = "Logout",
@@ -99,36 +88,37 @@ fun ProfileScreen(
         // 收藏和发布区域
         Column(verticalArrangement = Arrangement.spacedBy(36.dp)) {
             // 收藏车辆部分
-//            if (favoriteRVs.isNotEmpty()) {
-//                FavoriteSection(
-//                    title = "My Favorites",
-//                    items = favoriteRVs,
-//                    navController = navController
-//                )
-//                CustomDivider()
-//            }
+            if (fetchedFavourites.isNotEmpty()) {
+
+                FavoriteSection(
+                    title = "My Favorites",
+                    items = fetchedFavourites,
+                    navController = navController
+                )
+                CustomDivider()
+            }
 
             // 租赁收藏
             FavoriteSection(
                 title = "Rental Favorites",
-                items = rvList.filter { it.type == RVType.Rental },
+                items = fetchedFavourites,
                 navController = navController
             )
 
             CustomDivider()
 
-//            // 购买收藏
-//            FavoriteSection(
-//                title = "Purchase Favorites",
-//                items = rvList.filter { it.type == RVType.Sales }.take(2),
-//                navController = navController
-//            )
+            // 购买收藏
+            FavoriteSection(
+                title = "Purchase Favorites",
+                items = fetchedFavourites.filter { !it.isForSale },
+                navController = navController
+            )
 
             CustomDivider()
 
             // 已发布车辆
             PublishedSection(
-                rvs = rvList.filter { it.ownerId == userInfo?.uid }.take(2),
+                rvs = rvList.filter { it.ownerId == userInfo?.uid },
                 navController = navController
             )
         }
@@ -145,33 +135,22 @@ private fun UserInfoSection(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
+        // 用户头像
         Box(
             modifier = Modifier
                 .size(160.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer),
-            contentAlignment = Alignment.Center
+                .background(MaterialTheme.colorScheme.primaryContainer)
         ) {
-            val imageUrl = userInfo?.photoUrl?.toString()
-
-            if (!imageUrl.isNullOrEmpty()) {
-                AsyncImage(
-                    model = imageUrl,
-                    contentDescription = "Profile picture",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(160.dp).clip(CircleShape)
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.AccountCircle,
-                    contentDescription = "Default profile icon",
-                    modifier = Modifier.size(80.dp),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(80.dp)
+                    .align(Alignment.Center),
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
+            )
         }
-
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -211,7 +190,7 @@ private fun UserInfoSection(
 @Composable
 private fun FavoriteSection(
     title: String,
-    items: List<RV>,
+    items: List<Favourite>,
     navController: NavController
 ) {
     Column {
@@ -240,8 +219,9 @@ private fun FavoriteSection(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(items) { rv ->
-                FavoriteRVCard(rv = rv, onClick = { navController.navigate("detail/${rv.id}") })
+            items(items) {
+//                rv ->
+//                FavoriteRVCard(rv = rv, onClick = { navController.navigate("detail/${rv.id}") })
             }
         }
     }

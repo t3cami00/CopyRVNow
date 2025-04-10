@@ -174,6 +174,8 @@ fun RVDetailScreen(
     // Find the RV that matches the provided rvId
     val rv = rvList.firstOrNull { it.id == rvId }
     val isForRental = rv?.isForRental ?: false
+    val imageUrl = rv?.imageUrl ?: ""
+
     val isForSale = rv?.isForSale ?: false
 
     val comments by rvViewModel.comments.collectAsState(emptyList())
@@ -344,6 +346,7 @@ fun RVDetailScreen(
                                                     userId = userId,
                                                     rvId = rvId,
                                                     isForRental = isForRental,
+                                                    imageUrl = imageUrl,
                                                     isForSale = isForSale
                                                 ) { success ->
                                                     isProcessingFavorite = false

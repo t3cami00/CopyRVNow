@@ -134,7 +134,7 @@ class RVInformation {
     }
 
     // Add this to your RVApiService class
-    suspend fun addToFavorites(userId: String, rvId: String,isForRental:Boolean, isForSale:Boolean): Boolean {
+    suspend fun addToFavorites(userId: String, rvId: String,imageUrl:String,isForRental:Boolean, isForSale:Boolean): Boolean {
         return try {
             val favoritesRef = FirebaseFirestore.getInstance()
                 .collection("users")
@@ -147,6 +147,7 @@ class RVInformation {
 
                 "rvId" to rvId,
                 "isForRental" to isForRental,
+                "imageUrl" to imageUrl,
                 "isForSale" to isForSale,
 
                 "createdat" to FieldValue.serverTimestamp()
@@ -157,7 +158,7 @@ class RVInformation {
         }
     }
 
-    suspend fun removeFromFavorites(userId: String, rvId: String,isForRental:Boolean,isForSale:Boolean): Boolean {
+    suspend fun removeFromFavorites(userId: String, rvId: String,imageUrl:String,isForRental:Boolean,isForSale:Boolean): Boolean {
         return try {
             FirebaseFirestore.getInstance()
                 .collection("users")
@@ -187,19 +188,7 @@ class RVInformation {
         }
     }
 
-    suspend fun getAllFavoriteRVIds(userId: String): List<String> {
-        return try {
-            val snapshot = FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(userId)
-                .collection("favorites")
-                .get()
-                .await()
-            snapshot.documents.map { it.id } // assumes doc ID = rvId
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
+
 
 
     fun getAverageRating(rvId: String, onResult: (Float) -> Unit) {
@@ -242,6 +231,47 @@ class RVInformation {
             }
     }
 
+//    fun getAllFavorites(userId: String,onFavouriteFetched: (List<Favourite>) -> Unit) {
+//        db.collection("users")
+//            .document(userId)
+//            .collection("favorites")
+//            .addSnapshotListener { snapshot, e ->
+//                if (e != null) {
+//                    Log.e("Firestore", "Error fetching favourties", e)
+//                    return@addSnapshotListener
+//                }
+//
+//                val favorites = snapshot?.documents?.mapNotNull { it.toObject(Favourite::class.java) }
+//                onFavouriteFetched(favorites?: emptyList())
+//            }
+//    }
+
+    fun getAllFavorites(userId: String, onFavouriteFetched: (List<Favourite>) -> Unit) {
+        db.collection("users")
+            .document(userId)
+            .collection("favorites")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("Firestore", "Error fetching favourites", e)
+                    return@addSnapshotListener
+                }
+
+                Log.d("Firestore", "Fetched snapshot: ${snapshot?.documents?.size ?: 0} documents")
+
+                val favorites = snapshot?.documents?.mapNotNull {
+                    Log.d("Firestore", "Raw document: ${it.data}")
+                    val fav = it.toObject(Favourite::class.java)
+                    Log.d("Firestore", "Mapped to Favourite: $fav")
+                    fav
+                }
+
+                Log.d("Firestore", "Final favourites list: $favorites")
+                onFavouriteFetched(favorites ?: emptyList())
+            }
+    }
+
+
+
 
     // In your RVApiService or similar
     suspend fun addToCart(userId: String, rvId: String, rvData: Map<String, Any>): Boolean {
@@ -262,7 +292,7 @@ class RVInformation {
         }
     }
 
-    fun fetchCartItems(userId: String, onCartItemsFetched: (List<CartItem>) -> Unit) {
+    fun fetchedCartItems(userId: String, onCartItemsFetched: (List<CartItem>) -> Unit) {
         db.collection("users")
             .document(userId)
             .collection("cart")
