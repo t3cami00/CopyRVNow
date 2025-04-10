@@ -617,7 +617,7 @@ fun StarRatingBar2(
                     imageVector = Icons.Filled.Star,
                     contentDescription = "Star",
                     tint = if (rating >= starValue) Color.Yellow
-                    else if (averageRating >= starValue) Color.Yellow.copy(alpha = 0.3f)
+                    else if (averageRating >= starValue) Color.Yellow.copy(alpha = 0.1f)
                     else Color.Gray,
                     modifier = Modifier
                         .size(5.dp)
