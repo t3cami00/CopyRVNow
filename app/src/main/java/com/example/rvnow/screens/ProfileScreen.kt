@@ -52,7 +52,11 @@ fun ProfileScreen(
     val fullName by authViewModel.fullName.observeAsState()
     val fetchedFavourites by rvViewModel.fetchedFavourites.collectAsState()
     Log.d("FetchedFavourites", fetchedFavourites.toString())
-
+    LaunchedEffect(userInfo) {
+        userInfo?.uid?.let {
+            rvViewModel.loadFavorites(it)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -220,8 +224,8 @@ private fun FavoriteSection(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(items) {
-//                rv ->
-//                FavoriteRVCard(rv = rv, onClick = { navController.navigate("detail/${rv.id}") })
+                rv ->
+                FavoriteRVCard(rv = rv, onClick = { navController.navigate("detail/${rv.rvId}") })
             }
         }
     }
@@ -259,14 +263,14 @@ private fun PublishedSection(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(rvs) { rv ->
-                FavoriteRVCard(rv = rv, onClick = { navController.navigate("detail/${rv.id}") })
+//                FavoriteRVCard(rv = rv, onClick = { navController.navigate("detail/${rv.id}") })
             }
         }
     }
 }
 
 @Composable
-private fun FavoriteRVCard(rv: RV, onClick: () -> Unit) {
+private fun FavoriteRVCard(rv: Favourite, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .width(200.dp)
@@ -311,21 +315,21 @@ private fun FavoriteRVCard(rv: RV, onClick: () -> Unit) {
                             tint = Color(0xFFFFC107),
                             modifier = Modifier.size(14.dp)
                         )
-                        Text(
-                            text = "%.1f".format(rv.averageRating),
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
+//                        Text(
+//                            text = "%.1f".format(rv.averageRating),
+//                            style = MaterialTheme.typography.bodySmall,
+//                            modifier = Modifier.padding(start = 4.dp)
+//                        )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Text(
-                    text = rv.place,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
+//                Text(
+//                    text = rv.place,
+//                    style = MaterialTheme.typography.bodySmall,
+//                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+//                )
             }
         }
     }

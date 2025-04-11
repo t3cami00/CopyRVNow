@@ -1,5 +1,6 @@
 package com.example.rvnow
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -194,6 +195,12 @@ fun HomeScreen(
         isSmallScreen -> BETWEEN_RVS_SPACING_SMALL
         else -> BETWEEN_RVS_SPACING
     }
+//    val averageRating by rvViewModel.averageRating.collectAsState()
+//    LaunchedEffect(rvId) {
+//        rvViewModel.loadAverageRating(rvId)
+//        Log.d("AverageRating", "Average Rating: $averageRating")
+//
+//    }
 
     Column(
         modifier = Modifier
@@ -562,6 +569,8 @@ private fun PopularRVsSection(
     authViewModel: AuthViewModel,
     rvViewModel: RVViewModel
 ) {
+
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -583,6 +592,10 @@ private fun PopularRVsSection(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(rvs) { rv ->
+                LaunchedEffect(rv.id) {
+                    rvViewModel.loadAverageRating(rv.id)
+                    Log.d("AverageRating", "Loading Average Rating for RV: ${rv.id}")
+                }
                 RVCard(
                     rv = rv,
                     rvId = rv.id,  // Correctly passing rvId
@@ -606,7 +619,7 @@ fun StarRatingBar2(
     averageRating: Float,
     onRatingChanged: (Float) -> Unit,
     modifier: Modifier = Modifier,
-    starCount: Int = 5
+    starCount: Int = 1
 ) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         // Display stars
@@ -617,11 +630,11 @@ fun StarRatingBar2(
                     imageVector = Icons.Filled.Star,
                     contentDescription = "Star",
                     tint = if (rating >= starValue) Color.Yellow
-                    else if (averageRating >= starValue) Color.Yellow.copy(alpha = 0.2f)
+                    else if (averageRating >= starValue) Color.Yellow.copy(alpha = 0.1f)
                     else Color.Gray,
                     modifier = Modifier
                         .size(25.dp)
-                        .clickable { onRatingChanged(starValue) }
+
                 )
             }
         }
@@ -629,7 +642,7 @@ fun StarRatingBar2(
         // Display average rating text
         Spacer(modifier = Modifier.width(12.dp))
         Text(
-            text = "%.1f/10".format(averageRating),
+            text = "%.1f/5".format(averageRating),
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Bold
         )
@@ -656,10 +669,8 @@ private fun RVCard(
     val visibleImages = allImages.take(6)
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val cardWidth = (screenWidth - horizontalPadding * 2 - CARD_SPACING) * 0.8f
-    val comments by rvViewModel.comments.collectAsState(emptyList())
     val ratings by rvViewModel.ratings.collectAsState(emptyList())
     val context = LocalContext.current
-    val image1 = rememberAsyncImagePainter("file:///android_asset/images/11.png")
 
     val isForRental = rvSpecific?.isForRental ?: false
     val imageUrl = rvSpecific?.imageUrl ?: ""
@@ -671,7 +682,11 @@ private fun RVCard(
     val isLoggedIn by authViewModel.isLoggedIn.observeAsState(initial = false)
     var showWarningDialog by remember { mutableStateOf(false) }
     val currentUser by authViewModel.userInfo.observeAsState()
-    val averageRating by rvViewModel.averageRating.observeAsState(0f)
+//    val averageRating by rvViewModel.averageRating.collectAsState()
+//    val averageRating by rvViewModel.averageRating.collectAsState()
+    val averageRating = rvViewModel.averageRatings.collectAsState().value[rvId] ?: 0f
+
+
 
 
 
@@ -693,14 +708,12 @@ private fun RVCard(
         }
     }
 
-    LaunchedEffect(rvId) {
-        rvViewModel.loadComments(rvId, onComplete = {})
-    }
+
     Card(
         modifier = Modifier
             .width(cardWidth)
             .height(cardHeight)
-//            .clickable { navController.navigate("detail/${rvSpecific.id}?sourcePage=home") },
+            .clickable { navController.navigate("detail/${rv.id}?sourcePage=home") },
 //        shape = RoundedCornerShape(CARD_CORNER_RADIUS)
     ) {
         Column {
@@ -799,7 +812,7 @@ private fun RVCard(
                 // Title row
                 Box(
                     modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center, // This centers the content both horizontally and vertically
+//                    contentAlignment = Alignment.Center, // This centers the content both horizontally and vertically
 //                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
@@ -808,24 +821,31 @@ private fun RVCard(
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.fillMaxWidth() // This ensures the Text is centered horizontally within the Box
+                        modifier = Modifier.align(Alignment.Center) // This ensures the Text is centered horizontally within the Box
                     )
                 }
 
-                // Description with exactly 2 lines
-                Text(
-                    text = features,
-                    fontSize = 14.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    lineHeight = 18.sp,
+                Spacer(modifier = Modifier.height(3.dp))
+                Box(
                     modifier = Modifier.fillMaxWidth()
-                )
+                ) {
+                    Text(
+                        text = features,
+                        fontSize = 14.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        lineHeight = 18.sp,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
 
+                Spacer(modifier = Modifier.height(3.dp))
                 Row(
-//                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(start = 2.dp),
-                    ) {
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+//                    horizontalArrangement = Arrangement.spacedBy(64.dp)
+                ) {
 
                     Box(
 //                        modifier = Modifier.fillMaxWidth(),

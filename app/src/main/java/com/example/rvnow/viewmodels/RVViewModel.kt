@@ -43,8 +43,6 @@ class RVViewModel : ViewModel() {
     private val _ratings = MutableStateFlow<List<Comment>>(emptyList())
     val ratings: StateFlow<List<Comment>> = _ratings
 
-    private val _averageRating = MutableLiveData<Float>()
-    val averageRating: LiveData<Float> = _averageRating
 
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems
@@ -52,6 +50,8 @@ class RVViewModel : ViewModel() {
     private val _fetchedFavourites= MutableStateFlow<List<Favourite>>(emptyList())
     val fetchedFavourites: StateFlow<List<Favourite>> = _fetchedFavourites
 
+    private val _averageRating = MutableStateFlow(0f) // Default to 0f
+    val averageRating: StateFlow<Float> = _averageRating
 
     // 本地收藏状态管理
     private val _favorites = mutableStateMapOf<String, Boolean>()
@@ -68,16 +68,16 @@ class RVViewModel : ViewModel() {
                 var fetchedRVs = rvApiService.fetchAllRVs()
 
                 // 添加硬编码评分和收藏状态
-                fetchedRVs = fetchedRVs.map { rv ->
-                    rv.copy(
-                        averageRating = when (rv.id) {
-                            "1" -> 4.5
-                            "2" -> 3.8
-                            else -> 3.5
-                        },
-                        isFavorite = _favorites[rv.id] ?: false
-                    )
-                }
+//                fetchedRVs = fetchedRVs.map { rv ->
+//                    rv.copy(
+//                        averageRating = when (rv.id) {
+//                            "1" -> 4.5
+//                            "2" -> 3.8
+//                            else -> 3.5
+//                        },
+//                        isFavorite = _favorites[rv.id] ?: false
+//                    )
+//                }
 
                 _rvs.value = fetchedRVs
             } catch (e: Exception) {
@@ -129,17 +129,35 @@ class RVViewModel : ViewModel() {
 //    }
 
 
+//    fun loadAverageRating(rvId: String) {
+//        viewModelScope.launch {
+//            try {
+//                rvApiService.getAverageRating(rvId) { averageRating ->
+//                    _averageRating.value = averageRating
+//                }
+//            }catch (e: Exception) {
+//                // Handle the exception (e.g., log it, show a user-friendly message)
+//            }
+//        }
+//    }
+
+    private val _averageRatings = MutableStateFlow<Map<String, Float>>(emptyMap())
+    val averageRatings: StateFlow<Map<String, Float>> = _averageRatings
+
     fun loadAverageRating(rvId: String) {
         viewModelScope.launch {
             try {
                 rvApiService.getAverageRating(rvId) { averageRating ->
-                    _averageRating.value = averageRating
+                    // Update the map with the new rating for this RV
+                    _averageRatings.value = _averageRatings.value + (rvId to averageRating)
                 }
-            }catch (e: Exception) {
-                // Handle the exception (e.g., log it, show a user-friendly message)
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Error loading average rating: ${e.message}")
+                // Handle failure by keeping previous ratings
             }
         }
     }
+
 
 
     fun loadComments(rvId: String, onComplete: () -> Unit = {}) {
@@ -312,15 +330,6 @@ class RVViewModel : ViewModel() {
         }
     }
 
-
-//
-//    fun loadFavorites(userId: String) {
-//        viewModelScope.launch {
-//            // Make sure this is calling the appropriate function to fetch favorite RVs from the API or Firestore.
-//            val favorites = rvApiService.getAllFavorites(userId)
-//            _favoriteRVIds.value = favorites
-//        }
-//    }
 
 
 

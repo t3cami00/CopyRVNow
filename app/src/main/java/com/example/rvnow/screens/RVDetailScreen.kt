@@ -1,6 +1,7 @@
 // Add a new DetailScreen composable for displaying detailed information of the RV
 package com.example.rvnow
 
+import android.util.Log
 import android.widget.RatingBar
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -94,7 +95,7 @@ fun StarRatingBar(
     averageRating: Float,
     onRatingChanged: (Float) -> Unit,
     modifier: Modifier = Modifier,
-    starCount: Int = 5
+    starCount: Int = 1
 ) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         // Display stars
@@ -193,7 +194,9 @@ fun RVDetailScreen(
     var isProcessingFavorite by remember { mutableStateOf(false) }
     var isAddingToCart by remember { mutableStateOf(false) }
     var isAddedToCart by remember { mutableStateOf(false) }
-    val averageRating by rvViewModel.averageRating.observeAsState(0f)
+//    val averageRating by rvViewModel.averageRating.collectAsState()
+    val averageRating = rvViewModel.averageRatings.collectAsState().value[rvId] ?: 0f
+
 //    val currentUser by authViewModel.userInfo.observeAsState()
 //    var isFavorite by remember { mutableStateOf(false) }
 
@@ -211,7 +214,14 @@ fun RVDetailScreen(
 
     LaunchedEffect(rvId) {
         rvViewModel.loadComments(rvId, onComplete = {})
+        rvViewModel.loadAverageRating(rvId)
+        Log.d("AverageRating", "Loading Average Rating for RV: ${rvId}")
     }
+
+//    LaunchedEffect(rv.id) {
+//        rvViewModel.loadAverageRating(rv.id)
+//        Log.d("AverageRating", "Loading Average Rating for RV: ${rv.id}")
+//    }
 
 
     // UI content
@@ -614,7 +624,7 @@ fun RVDetailScreen(
                         }
 
                         // Warning Dialog if the user is not logged in
-                        if (showWarningDialog) {
+                        if (!isLoggedIn && showWarningDialog) {
                             AlertDialog(
                                 onDismissRequest = { showWarningDialog = false },
                                 title = { Text("Not Logged In") },
