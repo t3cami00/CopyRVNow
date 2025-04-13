@@ -12,5 +12,5 @@ data class RVDestination(
     val priceRange: String = "",
     val rating: Double = 0.0,
     val isFeatured: Boolean = false,
-    val parkingSpots: List<String> = listOf()
+    val parkingSpots: List<Map<String, Any>>? = null
 )

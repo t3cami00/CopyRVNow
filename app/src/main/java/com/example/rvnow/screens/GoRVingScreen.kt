@@ -6,9 +6,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +24,8 @@ import com.example.rvnow.model.RVDestination
 import com.example.rvnow.model.RVTravelGuide
 import com.example.rvnow.viewmodels.GoRVingViewModel
 
+// 添加OptIn注解以处理实验性API警告
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GoRVingScreen(navController: NavController) {
     val viewModel = viewModel<GoRVingViewModel>()
@@ -68,9 +70,10 @@ fun GoRVingScreen(navController: NavController) {
                         }
                     },
                     singleLine = true,
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.White,
-                        focusedIndicatorColor = MaterialTheme.colors.primary,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
                         unfocusedIndicatorColor = Color.Gray
                     ),
                     shape = RoundedCornerShape(8.dp)
@@ -102,7 +105,7 @@ fun GoRVingScreen(navController: NavController) {
                 item {
                     Text(
                         text = "Featured Destinations",
-                        style = MaterialTheme.typography.h6,
+                        style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(16.dp)
                     )
 
@@ -125,7 +128,7 @@ fun GoRVingScreen(navController: NavController) {
                 item {
                     Text(
                         text = "Browse by Country",
-                        style = MaterialTheme.typography.h6,
+                        style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(16.dp)
                     )
 
@@ -150,7 +153,7 @@ fun GoRVingScreen(navController: NavController) {
                 item {
                     Text(
                         text = "Travel Guides",
-                        style = MaterialTheme.typography.h6,
+                        style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(16.dp)
                     )
                 }
@@ -176,7 +179,7 @@ fun FeaturedDestinationItem(destination: RVDestination, onClick: () -> Unit) {
             .height(200.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),
-        elevation = 4.dp
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box {
             AsyncImage(
@@ -195,13 +198,13 @@ fun FeaturedDestinationItem(destination: RVDestination, onClick: () -> Unit) {
                 Column {
                     Text(
                         text = destination.name,
-                        style = MaterialTheme.typography.h6,
+                        style = MaterialTheme.typography.titleLarge,
                         color = Color.White
                     )
 
                     Text(
                         text = destination.location,
-                        style = MaterialTheme.typography.body2,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
                 }
@@ -218,7 +221,7 @@ fun CountryItem(country: String, onClick: () -> Unit) {
             .height(80.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),
-        elevation = 2.dp
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -226,7 +229,7 @@ fun CountryItem(country: String, onClick: () -> Unit) {
         ) {
             Text(
                 text = country,
-                style = MaterialTheme.typography.h6
+                style = MaterialTheme.typography.titleLarge
             )
         }
     }
@@ -240,7 +243,7 @@ fun TravelGuideItem(travelGuide: RVTravelGuide, onClick: () -> Unit) {
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),
-        elevation = 2.dp
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -259,7 +262,7 @@ fun TravelGuideItem(travelGuide: RVTravelGuide, onClick: () -> Unit) {
             ) {
                 Text(
                     text = travelGuide.title,
-                    style = MaterialTheme.typography.h6,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
 
@@ -267,7 +270,7 @@ fun TravelGuideItem(travelGuide: RVTravelGuide, onClick: () -> Unit) {
 
                 Text(
                     text = travelGuide.summary,
-                    style = MaterialTheme.typography.body2,
+                    style = MaterialTheme.typography.bodyMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -276,10 +279,9 @@ fun TravelGuideItem(travelGuide: RVTravelGuide, onClick: () -> Unit) {
 
                 Text(
                     text = "Published: ${travelGuide.date}",
-                    style = MaterialTheme.typography.caption
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }
     }
 }
-
