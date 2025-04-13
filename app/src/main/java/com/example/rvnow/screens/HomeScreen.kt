@@ -402,7 +402,7 @@ private fun ActionButtonsSection(
                 CustomActionButton(
                     text = "Go RVing",
                     icon = Icons.Default.Public,
-                    onClick = { /* Add travel navigation */ },
+                    onClick = { navController.navigate("go_rving") },
                     color = colors[3],
                     iconWidth = iconWidth,
                     isSmallScreen = true
@@ -453,7 +453,7 @@ private fun ActionButtonsSection(
                 CustomActionButton(
                     text = "Go RVing",
                     icon = Icons.Default.Public,
-                    onClick = { /* Add travel navigation */ },
+                    onClick = { navController.navigate("go_rving") },
                     color = colors[3],
                     iconWidth = iconWidth,
                     isSmallScreen = false,

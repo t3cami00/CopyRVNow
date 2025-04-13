@@ -52,7 +52,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.livedata.observeAsState
 import com.example.rvnow.screens.OwnerScreen
+import com.example.rvnow.screens.GoRVingScreen
+import com.example.rvnow.screens.TravelGuideDetailsScreen
 import com.example.rvnow.viewmodels.RVViewModel
+
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -117,6 +121,11 @@ fun RVNowApp(authViewModel: AuthViewModel,rvViewModel:RVViewModel) {
                 authViewModel = AuthViewModel(),
                 rvViewModel = RVViewModel()
             ) }
+            composable("go_rving") { GoRVingScreen(navController = navController) }
+            composable("travel_guide_details/{guideId}") { backStackEntry ->
+                val guideId = backStackEntry.arguments?.getString("guideId") ?: ""
+                TravelGuideDetailsScreen(navController = navController, guideId = guideId)
+            }
 
             composable("detail/{rvId}?sourcePage={sourcePage}") { backStackEntry ->
                 val rvId = backStackEntry.arguments?.getString("rvId") ?: ""
@@ -126,6 +135,15 @@ fun RVNowApp(authViewModel: AuthViewModel,rvViewModel:RVViewModel) {
                 RVDetailScreen(rvId = rvId, rvViewModel = rvViewModel, authViewModel= authViewModel,navController = navController,sourcePage=sourcePage)
 //                RVDetailScreen(rvId = rvId, rvViewModel = rvViewModel, navController = navController)
             }
+
+            composable("go_rving") { GoRVingScreen(navController = navController) }
+            composable("travel_guide_details/{guideId}") { backStackEntry ->
+                val guideId = backStackEntry.arguments?.getString("guideId") ?: ""
+                TravelGuideDetailsScreen(navController = navController, guideId = guideId)
+            }
+
+
+
         }
     }
 }
