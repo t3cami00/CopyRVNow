@@ -22,7 +22,23 @@ import com.example.rvnow.model.Favorite
 import com.example.rvnow.model.Rating
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+//import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.Modifier
+//import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 
 class RVViewModel : ViewModel() {
     private val rvApiService = RVInformation()
@@ -105,15 +121,54 @@ class RVViewModel : ViewModel() {
         }
     }
 
+//    fun addRating(rvId: String, rating: Rating, onComplete: @Composable () -> Unit = {}) {
+//        viewModelScope.launch {
+//            try {
+//                rvApiService.addRating(rvId, rating)
+//                _commentStatus.value = "Rating submitted successfully"
+//                updateAverageRating(rvId, rating.rating)
+//                onComplete()
+//            } catch (e: Exception) {
+//                _commentStatus.value = "Failed to submit rating: ${e.message}"
+//            }
+//        }
+//    }
+
     fun addRating(rvId: String, rating: Rating, onComplete: () -> Unit = {}) {
         viewModelScope.launch {
             try {
                 rvApiService.addRating(rvId, rating)
                 _commentStatus.value = "Rating submitted successfully"
-//                loadCRatings(rvId)
+
+                updateAverageRating(rvId, rating.rating)
+
+                // This is now just a regular callback
                 onComplete()
             } catch (e: Exception) {
                 _commentStatus.value = "Failed to submit rating: ${e.message}"
+            }
+        }
+    }
+
+
+
+
+    // A function to update the average rating in the ViewModel after a new rating is added
+    private fun updateAverageRating(rvId: String, averageRating: Float) {
+        _averageRatings.value = _averageRatings.value.toMutableMap().apply {
+            this[rvId] = averageRating
+        }
+    }
+
+    fun loadAverageRating(rvId: String) {
+        viewModelScope.launch {
+            try {
+                rvApiService.getAverageRating(rvId) { averageRating ->
+                    // Update the state using the controlled method
+                    updateAverageRating(rvId, averageRating)
+                }
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Error loading average rating: ${e.message}")
             }
         }
     }
@@ -147,19 +202,22 @@ class RVViewModel : ViewModel() {
     private val _averageRatings = MutableStateFlow<Map<String, Float>>(emptyMap())
     val averageRatings: StateFlow<Map<String, Float>> = _averageRatings
 
-    fun loadAverageRating(rvId: String) {
-        viewModelScope.launch {
-            try {
-                rvApiService.getAverageRating(rvId) { averageRating ->
-                    // Update the map with the new rating for this RV
-                    _averageRatings.value = _averageRatings.value + (rvId to averageRating)
-                }
-            } catch (e: Exception) {
-                Log.e("ViewModel", "Error loading average rating: ${e.message}")
-                // Handle failure by keeping previous ratings
-            }
-        }
-    }
+//    fun loadAverageRating(rvId: String) {
+//        viewModelScope.launch {
+//            try {
+//                rvApiService.getAverageRating(rvId) { averageRating ->
+//                    // Update the map with the new rating for this RV
+//                    _averageRatings.value = _averageRatings.value + (rvId to averageRating)
+//                }
+//            } catch (e: Exception) {
+//                Log.e("ViewModel", "Error loading average rating: ${e.message}")
+//                // Handle failure by keeping previous ratings
+//            }
+//        }
+//    }
+
+
+
 
 
 

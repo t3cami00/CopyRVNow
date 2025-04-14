@@ -88,6 +88,43 @@ import androidx.compose.material.icons.filled.FlipToBack
 import androidx.compose.material.icons.filled.StarHalf
 import androidx.compose.ui.platform.LocalContext
 
+//
+//@Composable
+//fun StarRatingBar(
+//    rating: Float,
+//    averageRating: Float,
+//    onRatingChanged: (Float) -> Unit,
+//    modifier: Modifier = Modifier,
+//    starCount: Int = 1
+//) {
+//    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+//        // Display stars
+//        Row {
+//            for (i in 1..starCount) {
+//                val starValue = i.toFloat()
+//                Icon(
+//                    imageVector = Icons.Filled.Star,
+//                    contentDescription = "Star",
+//                    tint = if (rating >= starValue) Color.Yellow
+//                    else if (averageRating >= starValue) Color.Yellow.copy(alpha = 0.3f)
+//                    else Color.Gray,
+//                    modifier = Modifier
+//                        .size(36.dp)
+//                        .clickable { onRatingChanged(starValue) }
+//                )
+//            }
+//        }
+//
+//        // Display average rating text
+//        Spacer(modifier = Modifier.width(8.dp))
+//        Text(
+//            text = "%.1f/5".format(averageRating),
+//            style = MaterialTheme.typography.bodyLarge,
+//            fontWeight = FontWeight.Bold
+//        )
+//    }
+//}
+
 
 @Composable
 fun StarRatingBar(
@@ -106,17 +143,17 @@ fun StarRatingBar(
                     imageVector = Icons.Filled.Star,
                     contentDescription = "Star",
                     tint = if (rating >= starValue) Color.Yellow
-                    else if (averageRating >= starValue) Color.Yellow.copy(alpha = 0.3f)
+                    else if (averageRating >= starValue) Color.Yellow.copy(alpha = 0.1f)
                     else Color.Gray,
                     modifier = Modifier
-                        .size(36.dp)
-                        .clickable { onRatingChanged(starValue) }
+                        .size(25.dp)
+
                 )
             }
         }
 
         // Display average rating text
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = "%.1f/5".format(averageRating),
             style = MaterialTheme.typography.bodyLarge,
@@ -124,6 +161,7 @@ fun StarRatingBar(
         )
     }
 }
+
 
 @Composable
 fun StarRatingBar1(
@@ -215,8 +253,13 @@ fun RVDetailScreen(
     }
 
     LaunchedEffect(rvId) {
-        rvViewModel.loadComments(rvId, onComplete = {})
         rvViewModel.loadAverageRating(rvId)
+        Log.d("AverageRating", "Loading Average Rating for RV: ${rvId}")
+    }
+
+    LaunchedEffect(rvId) {
+        rvViewModel.loadComments(rvId, onComplete = {})
+//        rvViewModel.loadAverageRating(rvId)
         Log.d("AverageRating", "Loading Average Rating for RV: ${rvId}")
     }
 
@@ -440,26 +483,7 @@ fun RVDetailScreen(
                         }
 
 
-//                                    IconButton(
-//                                        onClick = {
-////                                            isFavorite = !isFavorite
-//                                            // Proceed to save the favorite status to Firestore
-//                                        }
-//                                    ) {
-//                                        Icon(
-//                                            imageVector = Icons.Filled.ShoppingCart,
-//                                            contentDescription = "Cart",
-//                                            modifier = Modifier.size(44.dp),
-////                                            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-////                                            contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-////                                            tint = if (isFavorite) Color.Red else Color.Gray
-//                                        )
-//                                    }
-//
-//
-//                                }
-//                            }
-//                        }
+
 
                         // Product Description
                         Spacer(modifier = Modifier.height(16.dp))
@@ -563,7 +587,7 @@ fun RVDetailScreen(
                                             // Submit the rating
                                             rvViewModel.addRating(rvId, newRating) {
                                                 // Clear comment and reset rating after successful submission
-                                                rating = 8.5f // Reset the rating to initial state
+                                                rating = 5f // Reset the rating to initial state
 
                                                 // Show success message using Toast
                                                 Toast.makeText(
@@ -571,6 +595,9 @@ fun RVDetailScreen(
                                                     "Rating submitted successfully!",
                                                     Toast.LENGTH_SHORT
                                                 ).show()
+
+                                                rvViewModel.loadAverageRating(rvId)
+
                                             }
                                         }
                                     } else {

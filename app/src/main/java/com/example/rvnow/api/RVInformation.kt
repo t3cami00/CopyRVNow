@@ -222,7 +222,9 @@ class RVInformation {
 
         query.get(AggregateSource.SERVER)
             .addOnSuccessListener { result ->
+
                 val average = result.get(AggregateField.average("rating")) ?: 0.0
+                Log.d("AVERAGE_CHECK", "Average rating: $average")
                 onResult(average.toFloat())
             }
             .addOnFailureListener { exception ->

@@ -253,7 +253,7 @@ fun HomeScreen(
 
         PopularRVsSection(
             title = "Popular Listed RVs",
-            rvs = rvList.filter { it.isForSale && it.isPopular },
+            rvs = rvList.filter { it.isForSale  },
             navController = navController,
             horizontalPadding = horizontalPadding,
             authViewModel = authViewModel,
