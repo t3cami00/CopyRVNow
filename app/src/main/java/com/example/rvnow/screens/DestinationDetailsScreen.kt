@@ -1,13 +1,21 @@
 package com.example.rvnow.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +28,9 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.rvnow.viewmodels.GoRVingViewModel
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DestinationDetailsScreen(
     navController: NavController,
@@ -87,7 +98,7 @@ fun DestinationDetailsScreen(
                         ) {
                             Text(
                                 text = destination.name,
-                                style = MaterialTheme.typography.h5,
+                                style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Bold
                             )
 
@@ -95,35 +106,35 @@ fun DestinationDetailsScreen(
 
                             Text(
                                 text = "${destination.location}, ${destination.country}",
-                                style = MaterialTheme.typography.subtitle1
+                                style = MaterialTheme.typography.titleMedium
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
 
                             Text(
                                 text = "Rating: ${destination.rating ?: "Not rated"}",
-                                style = MaterialTheme.typography.body2
+                                style = MaterialTheme.typography.bodyMedium
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
 
                             Text(
                                 text = "Price Range: ${destination.priceRange ?: "Not specified"}",
-                                style = MaterialTheme.typography.body2
+                                style = MaterialTheme.typography.bodyMedium
                             )
 
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Text(
                                 text = "Description",
-                                style = MaterialTheme.typography.h6
+                                style = MaterialTheme.typography.headlineSmall
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
 
                             Text(
                                 text = destination.description ?: "No description available",
-                                style = MaterialTheme.typography.body1
+                                style = MaterialTheme.typography.bodyLarge
                             )
                         }
                     }
@@ -135,7 +146,7 @@ fun DestinationDetailsScreen(
                         ) {
                             Text(
                                 text = "Facilities",
-                                style = MaterialTheme.typography.h6
+                                style = MaterialTheme.typography.headlineSmall
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -148,13 +159,13 @@ fun DestinationDetailsScreen(
                                         Surface(
                                             modifier = Modifier.padding(vertical = 4.dp),
                                             shape = RoundedCornerShape(16.dp),
-                                            color = MaterialTheme.colors.primary.copy(alpha = 0.1f),
-                                            elevation = 0.dp
+                                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                            tonalElevation = 0.dp
                                         ) {
                                             Text(
                                                 text = facility,
                                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                                style = MaterialTheme.typography.body2
+                                                style = MaterialTheme.typography.bodyMedium
                                             )
                                         }
                                     }
@@ -162,7 +173,7 @@ fun DestinationDetailsScreen(
                             } else {
                                 Text(
                                     text = "No facilities listed",
-                                    style = MaterialTheme.typography.body2,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     color = Color.Gray
                                 )
                             }
@@ -176,14 +187,14 @@ fun DestinationDetailsScreen(
                         ) {
                             Text(
                                 text = "Best Time to Visit",
-                                style = MaterialTheme.typography.h6
+                                style = MaterialTheme.typography.headlineSmall
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
 
                             Text(
                                 text = destination.bestTimeToVisit ?: "No information available",
-                                style = MaterialTheme.typography.body1
+                                style = MaterialTheme.typography.bodyLarge
                             )
                         }
                     }
@@ -195,7 +206,7 @@ fun DestinationDetailsScreen(
                         ) {
                             Text(
                                 text = "Parking Spots",
-                                style = MaterialTheme.typography.h6
+                                style = MaterialTheme.typography.headlineSmall
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -204,14 +215,14 @@ fun DestinationDetailsScreen(
                                 destination.parkingSpots.forEach { spot ->
                                     Text(
                                         text = "• $spot",
-                                        style = MaterialTheme.typography.body1,
+                                        style = MaterialTheme.typography.bodyLarge,
                                         modifier = Modifier.padding(vertical = 4.dp)
                                     )
                                 }
                             } else {
                                 Text(
                                     text = "No parking spots listed",
-                                    style = MaterialTheme.typography.body1,
+                                    style = MaterialTheme.typography.bodyLarge,
                                     color = Color.Gray
                                 )
                             }
@@ -219,7 +230,6 @@ fun DestinationDetailsScreen(
                     }
                 }
             } ?: run {
-                // This handles the case where selectedDestination is null
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center

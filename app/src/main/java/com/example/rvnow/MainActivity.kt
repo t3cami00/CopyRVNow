@@ -35,19 +35,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import coil.compose.rememberAsyncImagePainter
 import com.example.rvnow.model.RV
 import com.example.rvnow.model.RVType
 import com.example.rvnow.screens.*
 import com.example.rvnow.viewmodels.AuthViewModel
 import com.example.rvnow.viewmodels.RVViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -62,13 +59,32 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun RVNowApp(
-    authViewModel: AuthViewModel,
-    rvViewModel: RVViewModel
-) {
+fun RVNowApp(authViewModel: AuthViewModel, rvViewModel: RVViewModel) {
     val navController = rememberNavController()
     val image1 = rememberAsyncImagePainter("file:///android_asset/images/11.jpeg")
     val startDestination = "home"
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(150.dp)
+            .padding(bottom = 16.dp)
+            .background(color = Color.White)
+    ) {
+        Image(
+            painter = image1,
+            contentDescription = "RV Image",
+            modifier = Modifier.fillMaxSize()
+        )
+
+        Text(
+            text = "Welcome to RVNow",
+            color = Color.Black,
+            fontSize = 34.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.align(Alignment.Center),
+        )
+    }
 
     Scaffold(
         bottomBar = { BottomNavBar(navController, authViewModel) }
@@ -89,8 +105,12 @@ fun RVNowApp(
                 )
             }
             composable("owner") { OwnerScreen(navController = navController) }
-            composable("signup") { SignupScreen(navController = navController) }
-            composable("Signin|up") { LoginScreen(navController = navController, authViewModel = authViewModel) }
+            composable("signup") {
+                SignupScreen(navController = navController, authViewModel = authViewModel)
+            }
+            composable("Signin|up") {
+                LoginScreen(navController = navController, authViewModel = authViewModel)
+            }
             composable("rental") { RentalScreen(navController = navController) }
             composable("sales") { SalesScreen(navController = navController) }
             composable("profile") {
@@ -105,6 +125,29 @@ fun RVNowApp(
             composable("travel_guide_details/{guideId}") { backStackEntry ->
                 val guideId = backStackEntry.arguments?.getString("guideId") ?: ""
                 TravelGuideDetailsScreen(navController = navController, guideId = guideId)
+            }
+
+            // 目的地详情页面路由
+            composable(
+                route = "destination_details/{destinationId}",
+                arguments = listOf(navArgument("destinationId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val destinationId = backStackEntry.arguments?.getString("destinationId") ?: ""
+                DestinationDetailsScreen(navController, destinationId)
+            }
+
+            // 国家目的地列表路由
+            composable(
+                route = "country_destinations/{country}",
+                arguments = listOf(navArgument("country") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val country = backStackEntry.arguments?.getString("country") ?: ""
+                CountryDestinationsScreen(navController, country)
+            }
+
+            // 搜索结果页面路由
+            composable("search_results") {
+                SearchResultsScreen(navController)
             }
 
             composable("detail/{rvId}?sourcePage={sourcePage}") { backStackEntry ->
@@ -163,13 +206,13 @@ fun BottomNavBar(navController: NavController, authViewModel: AuthViewModel) {
 }
 
 data class NavItem(val label: String, val icon: ImageVector, val route: String)
-// 以下是原有不变的getSampleRVs函数
+
 fun getSampleRVs(): List<RV> {
     return listOf(
         RV(
             name = "Luxury RV",
             id = "1",
-            ownerId ="23",
+            ownerId = "23",
             type = RVType.Rental,
             pricePerDay = 100000.1,
             description = "Spacious and comfortable",
@@ -185,7 +228,7 @@ fun getSampleRVs(): List<RV> {
         RV(
             name = "Off-Road RV",
             id = "2",
-            ownerId ="24",
+            ownerId = "24",
             type = RVType.Rental,
             pricePerDay = 150000.1,
             description = "Built for adventure",
@@ -206,7 +249,7 @@ fun getSampleRVs(): List<RV> {
         RV(
             name = "Camper Van",
             id = "3",
-            ownerId ="26",
+            ownerId = "26",
             type = RVType.Sales,
             pricePerDay = 300000.1,
             description = "Compact yet cozy",

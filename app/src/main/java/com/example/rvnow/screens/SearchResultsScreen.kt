@@ -5,14 +5,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -21,6 +22,7 @@ import com.example.rvnow.model.RVDestination
 import com.example.rvnow.model.RVTravelGuide
 import com.example.rvnow.viewmodels.GoRVingViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchResultsScreen(
     navController: NavController
@@ -110,7 +112,7 @@ fun SearchDestinationItem(destination: RVDestination, onClick: () -> Unit) {
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),
-        elevation = 2.dp
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -129,7 +131,7 @@ fun SearchDestinationItem(destination: RVDestination, onClick: () -> Unit) {
             ) {
                 Text(
                     text = destination.name,
-                    style = MaterialTheme.typography.h6,
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
 
@@ -137,14 +139,14 @@ fun SearchDestinationItem(destination: RVDestination, onClick: () -> Unit) {
 
                 Text(
                     text = "${destination.location}, ${destination.country}",
-                    style = MaterialTheme.typography.body2
+                    style = MaterialTheme.typography.bodyMedium
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
                     text = "Rating: ${destination.rating}",
-                    style = MaterialTheme.typography.caption
+                    style = MaterialTheme.typography.labelSmall
                 )
             }
         }
@@ -158,7 +160,7 @@ fun SearchTravelGuideItem(travelGuide: RVTravelGuide, onClick: () -> Unit) {
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),
-        elevation = 2.dp
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -177,7 +179,7 @@ fun SearchTravelGuideItem(travelGuide: RVTravelGuide, onClick: () -> Unit) {
             ) {
                 Text(
                     text = travelGuide.title,
-                    style = MaterialTheme.typography.h6,
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
 
@@ -185,16 +187,16 @@ fun SearchTravelGuideItem(travelGuide: RVTravelGuide, onClick: () -> Unit) {
 
                 Text(
                     text = travelGuide.summary,
-                    style = MaterialTheme.typography.body2,
+                    style = MaterialTheme.typography.bodyMedium,
                     maxLines = 2,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
                     text = "Published: ${travelGuide.date}",
-                    style = MaterialTheme.typography.caption
+                    style = MaterialTheme.typography.labelSmall
                 )
             }
         }
