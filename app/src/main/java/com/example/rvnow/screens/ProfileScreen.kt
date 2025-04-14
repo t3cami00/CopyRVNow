@@ -38,7 +38,8 @@ import com.example.rvnow.viewmodels.RVViewModel
 import com.google.firebase.auth.FirebaseUser
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.LaunchedEffect
-import com.example.rvnow.model.Favourite
+import coil.compose.AsyncImage
+import com.example.rvnow.model.Favorite
 
 @Composable
 fun ProfileScreen(
@@ -46,16 +47,37 @@ fun ProfileScreen(
     authViewModel: AuthViewModel,
     rvViewModel: RVViewModel = viewModel()
 ) {
+    val cartItems by rvViewModel.cartItems.collectAsState()
     val isLoggedIn by authViewModel.isLoggedIn.observeAsState(initial = false)
     val rvList by rvViewModel.rvs.collectAsState()
     val userInfo by authViewModel.userInfo.observeAsState()
     val fullName by authViewModel.fullName.observeAsState()
+//    val fetchedFavourites by rvViewModel.fetchedFavourites
     val fetchedFavourites by rvViewModel.fetchedFavourites.collectAsState()
-    Log.d("FetchedFavourites", fetchedFavourites.toString())
+
+//    val fetchedFavourites by rvViewModel.fetchedFavourites.collectAsState(emptyList())
+
+//    LaunchedEffect(userInfo) {
+//        userInfo?.uid?.let {
+//            rvViewModel.loadFavorites(it)
+//        }
+//    }
+
     LaunchedEffect(userInfo) {
-        userInfo?.uid?.let {
-            rvViewModel.loadFavorites(it)
+        if (fetchedFavourites.isEmpty()) {
+            rvViewModel.loadFavorites(userInfo?.uid ?: "")
         }
+    }
+
+    LaunchedEffect(userInfo?.uid) {
+        userInfo?.uid?.let {
+//            rvViewModel.fetchCartItems(it)
+            Log.d("FetchedFavourites", fetchedFavourites.toString())
+        }
+    }
+
+    LaunchedEffect(fetchedFavourites) {
+        Log.d("FetchedFavourites", "Updated favourites: $fetchedFavourites")
     }
 
     Column(
@@ -92,15 +114,14 @@ fun ProfileScreen(
         // 收藏和发布区域
         Column(verticalArrangement = Arrangement.spacedBy(36.dp)) {
             // 收藏车辆部分
-            if (fetchedFavourites.isNotEmpty()) {
-
-                FavoriteSection(
-                    title = "My Favorites",
-                    items = fetchedFavourites,
-                    navController = navController
-                )
-                CustomDivider()
-            }
+//            if (fetchedFavourites.isNotEmpty()) {
+//                FavoriteSection(
+//                    title = "My Favorites",
+//                    items = fetchedFavourites,
+//                    navController = navController
+//                )
+//                CustomDivider()
+//            }
 
             // 租赁收藏
             FavoriteSection(
@@ -114,17 +135,17 @@ fun ProfileScreen(
             // 购买收藏
             FavoriteSection(
                 title = "Purchase Favorites",
-                items = fetchedFavourites.filter { !it.isForSale },
+                items = fetchedFavourites,
                 navController = navController
             )
 
             CustomDivider()
 
             // 已发布车辆
-            PublishedSection(
-                rvs = rvList.filter { it.ownerId == userInfo?.uid },
-                navController = navController
-            )
+//            PublishedSection(
+//                rvs = rvList.filter { it.ownerId == userInfo?.uid },
+//                navController = navController
+//            )
         }
     }
 }
@@ -194,7 +215,7 @@ private fun UserInfoSection(
 @Composable
 private fun FavoriteSection(
     title: String,
-    items: List<Favourite>,
+    items: List<Favorite>,
     navController: NavController
 ) {
     Column {
@@ -224,53 +245,53 @@ private fun FavoriteSection(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(items) {
-                rv ->
-                FavoriteRVCard(rv = rv, onClick = { navController.navigate("detail/${rv.rvId}") })
+                    rv ->
+                FavoriteRVCard(favorite = rv, onClick = { navController.navigate("detail/${rv.rvId}") })
             }
         }
     }
 }
 
+//@Composable
+//private fun PublishedSection(
+//    rvs: List<RV>,
+//    navController: NavController
+//) {
+//    Column {
+//        // 标题行
+//        Row(
+//            verticalAlignment = Alignment.CenterVertically,
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            Text(
+//                text = "Published RVs",
+//                style = MaterialTheme.typography.titleLarge,
+//                fontWeight = FontWeight.Bold
+//            )
+//            Spacer(modifier = Modifier.width(8.dp))
+//            Text(
+//                text = "${rvs.size} Published",
+//                style = MaterialTheme.typography.bodyMedium,
+//                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+//            )
+//        }
+//
+//        Spacer(modifier = Modifier.height(12.dp))
+//
+//        // 横向滚动列表
+//        LazyRow(
+//            horizontalArrangement = Arrangement.spacedBy(12.dp),
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            items(rvs) { rv ->
+//                FavoriteRVCard(favorite = rv, onClick = { navController.navigate("detail/${rv.id}") })
+//            }
+//        }
+//    }
+//}
+
 @Composable
-private fun PublishedSection(
-    rvs: List<RV>,
-    navController: NavController
-) {
-    Column {
-        // 标题行
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "Published RVs",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "${rvs.size} Published",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // 横向滚动列表
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(rvs) { rv ->
-//                FavoriteRVCard(rv = rv, onClick = { navController.navigate("detail/${rv.id}") })
-            }
-        }
-    }
-}
-
-@Composable
-private fun FavoriteRVCard(rv: Favourite, onClick: () -> Unit) {
+private fun FavoriteRVCard(favorite: Favorite, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .width(200.dp)
@@ -280,16 +301,20 @@ private fun FavoriteRVCard(rv: Favourite, onClick: () -> Unit) {
         Column {
             Box(
                 modifier = Modifier
-                    .height(120.dp)
+                    .height(120.dp) // Fixed height
                     .fillMaxWidth()
             ) {
-                Image(
-                    painter = rememberAsyncImagePainter(rv.imageUrl),
+                AsyncImage(
+                    model = favorite.imageUrl,
                     contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+//                    placeholder = painterResource(id = R.drawable.placeholder),
+//                    error = painterResource(id = R.drawable.error_image),
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    alignment = Alignment.Center
                 )
             }
+
 
             Column(modifier = Modifier.padding(12.dp)) {
                 // 优化后的名称和评分布局
@@ -298,29 +323,29 @@ private fun FavoriteRVCard(rv: Favourite, onClick: () -> Unit) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = rv.name,
+                        text = favorite.name,
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
                     )
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(start = 4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Rating",
-                            tint = Color(0xFFFFC107),
-                            modifier = Modifier.size(14.dp)
-                        )
+//                    Row(
+//                        verticalAlignment = Alignment.CenterVertically,
+//                        modifier = Modifier.padding(start = 4.dp)
+//                    ) {
+//                        Icon(
+//                            imageVector = Icons.Default.Star,
+//                            contentDescription = "Rating",
+//                            tint = Color(0xFFFFC107),
+//                            modifier = Modifier.size(14.dp)
+//                        )
 //                        Text(
 //                            text = "%.1f".format(rv.averageRating),
 //                            style = MaterialTheme.typography.bodySmall,
 //                            modifier = Modifier.padding(start = 4.dp)
 //                        )
-                    }
+//                    }
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))

@@ -254,7 +254,7 @@ fun HomeScreen(
 
         PopularRVsSection(
             title = "Popular Listed RVs",
-            rvs = rvList.filter { it.isForSale && it.isPopular },
+            rvs = rvList.filter { it.isForSale  },
             navController = navController,
             horizontalPadding = horizontalPadding,
             authViewModel = authViewModel,
@@ -665,6 +665,8 @@ private fun RVCard(
     val rvList by rvViewModel.rvs.collectAsState()
     // Find the RV that matches the provided rvId
     val rvSpecific = rvList.firstOrNull { it.id == rvId }
+    val name = rvSpecific?.name ?: ""
+
     var currentImageIndex by remember { mutableStateOf(0) }
     val allImages = listOfNotNull(rv.imageUrl) + (rv.additionalImages ?: emptyList())
     val visibleImages = allImages.take(6)
@@ -881,6 +883,7 @@ private fun RVCard(
                                 rvViewModel.toggleFavorite(
                                     userId = userId,
                                     rvId = rvId,
+                                    name = name,
                                     isForRental = isForRental,
                                     imageUrl = imageUrl,
                                     isForSale = isForSale
