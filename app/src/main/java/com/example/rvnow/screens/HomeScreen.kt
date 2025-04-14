@@ -163,6 +163,7 @@ fun HomeScreen(
     rvViewModel: RVViewModel = viewModel(),
     navController: NavController,
     authViewModel: AuthViewModel
+
 ) {
     val rvList by rvViewModel.rvs.collectAsState()
     val heroImage = rememberAsyncImagePainter("file:///android_asset/images/brighter_image_2.png")

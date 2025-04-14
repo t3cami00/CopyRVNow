@@ -1,7 +1,8 @@
 package com.example.rvnow
 
-import LoginScreen
-import SignupScreen
+import com.example.rvnow.screens.DestinationDetailsScreen
+import com.example.rvnow.screens.CountryDestinationsScreen
+import com.example.rvnow.screens.SearchResultsScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -55,7 +56,8 @@ import com.example.rvnow.screens.OwnerScreen
 import com.example.rvnow.screens.GoRVingScreen
 import com.example.rvnow.screens.TravelGuideDetailsScreen
 import com.example.rvnow.viewmodels.RVViewModel
-
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
 
 
 class MainActivity : ComponentActivity() {
@@ -127,6 +129,30 @@ fun RVNowApp(authViewModel: AuthViewModel,rvViewModel:RVViewModel) {
                 TravelGuideDetailsScreen(navController = navController, guideId = guideId)
             }
 
+            // 目的地详情页面路由
+            composable(
+                route = "destination_details/{destinationId}",
+                arguments = listOf(navArgument("destinationId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val destinationId = backStackEntry.arguments?.getString("destinationId") ?: ""
+                DestinationDetailsScreen(navController, destinationId)
+            }
+
+            // 国家目的地列表路由
+            composable(
+                route = "country_destinations/{country}",
+                arguments = listOf(navArgument("country") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val country = backStackEntry.arguments?.getString("country") ?: ""
+                CountryDestinationsScreen(navController, country)
+            }
+
+            // 搜索结果页面路由
+            composable("search_results") {
+                SearchResultsScreen(navController)
+            }
+
+
             composable("detail/{rvId}?sourcePage={sourcePage}") { backStackEntry ->
                 val rvId = backStackEntry.arguments?.getString("rvId") ?: ""
                 val rvViewModel: RVViewModel = viewModel()
@@ -192,69 +218,4 @@ fun BottomNavBar(navController: NavController, authViewModel: AuthViewModel) {
     }
 }
 
-// 辅助数据类
 data class NavItem(val label: String, val icon: ImageVector, val route: String)
-//
-//// 以下是原有不变的getSampleRVs函数
-//fun getSampleRVs(): List<RV> {
-//    return listOf(
-//        RV(
-//            name = "Luxury RV",
-//            id = "1",
-//            ownerId ="23",
-//            type = RVType.Rental,
-//            pricePerDay = 100000.1,
-//            description = "Spacious and comfortable",
-//            place = "Helsinki",
-//            driverLicenceRequired = "B",
-//            insurance = mapOf(
-//                "provider" to "more on the way",
-//                "coverage" to "fully"
-//            ),
-//            kilometerLimitation = 320,
-//            imageUrl = "file:///android_asset/images/1.jpg"
-//        ),
-//        RV(
-//            name = "Off-Road RV",
-//            id = "2",
-//            ownerId ="24",
-//            type = RVType.Rental,
-//            pricePerDay = 150000.1,
-//            description = "Built for adventure",
-//            place = "Kempele",
-//            additionalImages = listOf(
-//                "file:///android_asset/images/3.jpg",
-//                "file:///android_asset/images/1.jpg",
-//                "file:///android_asset/images/2.jpg"
-//            ),
-//            driverLicenceRequired = "B",
-//            insurance = mapOf(
-//                "provider" to "more on the way",
-//                "coverage" to "fully"
-//            ),
-//            kilometerLimitation = 320,
-//            imageUrl = "file:///android_asset/images/2.jpg"
-//        ),
-//        RV(
-//            name = "Camper Van",
-//            id = "3",
-//            ownerId ="26",
-//            type = RVType.Sales,
-//            pricePerDay = 300000.1,
-//            description = "Compact yet cozy",
-//            place = "Oulu",
-//            driverLicenceRequired = "B",
-//            additionalImages = listOf(
-//                "file:///android_asset/images/3.jpg",
-//                "file:///android_asset/images/1.jpg",
-//                "file:///android_asset/images/2.jpg"
-//            ),
-//            insurance = mapOf(
-//                "provider" to "more on the way",
-//                "coverage" to "fully"
-//            ),
-//            kilometerLimitation = 320,
-//            imageUrl = "file:///android_asset/images/3.jpg"
-//        )
-//    )
-//}
