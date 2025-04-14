@@ -228,7 +228,7 @@ fun RentalScreen(
 
         Box(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth().padding(10.dp)
 //                .width(100.dp) .align(Alignment.Center)
                 .clickable { startDatePickerDialog.show() } // Apply clickable to the Box
         ) {

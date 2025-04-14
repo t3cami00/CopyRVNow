@@ -574,7 +574,7 @@ fun SalesScreen(
 
         Box(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth().padding(10.dp)
 //                .width(100.dp) .align(Alignment.Center)
                 .clickable { startDatePickerDialog.show() } // Apply clickable to the Box
         ) {
@@ -584,7 +584,8 @@ fun SalesScreen(
                     drivingType = ""
                     startDate = ""
                     endDate = ""
-                    place = ""},
+                    place = ""
+                          },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Search")
@@ -727,14 +728,12 @@ fun RVItem2(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { navController.navigate("detail/${rv.id}?sourcePage=rental") },
+            .clickable { navController.navigate("detail/${rv.id}?sourcePage=sales") },
         shape = RoundedCornerShape(8.dp)
     ) {
 
 
         val rvList by rvViewModel.rvs.collectAsState()
-        // Find the RV that matches the provided rvId
-//        val rvSpecific = rvList.firstOrNull { it.id == rvId }
         val name = rv?.name ?: ""
 
         var currentImageIndex by remember { mutableStateOf(0) }
