@@ -1,5 +1,8 @@
 package com.example.rvnow
 
+import com.example.rvnow.screens.DestinationDetailsScreen
+import com.example.rvnow.screens.CountryDestinationsScreen
+import com.example.rvnow.screens.SearchResultsScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -33,7 +36,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -42,9 +44,20 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.rvnow.model.RV
 import com.example.rvnow.model.RVType
-import com.example.rvnow.screens.*
+import androidx.compose.ui.text.TextStyle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.rvnow.viewmodels.AuthViewModel
+import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.livedata.observeAsState
+import com.example.rvnow.screens.OwnerScreen
+import com.example.rvnow.screens.GoRVingScreen
+import com.example.rvnow.screens.TravelGuideDetailsScreen
 import com.example.rvnow.viewmodels.RVViewModel
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
 
 
 class MainActivity : ComponentActivity() {
@@ -59,11 +72,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun RVNowApp(authViewModel: AuthViewModel, rvViewModel: RVViewModel) {
+fun RVNowApp(authViewModel: AuthViewModel,rvViewModel:RVViewModel) {
     val navController = rememberNavController()
+//    val image1 = rememberAsyncImagePainter("file:///android_asset/images/11.jpeg")
     val image1 = rememberAsyncImagePainter("file:///android_asset/images/11.jpeg")
+//    val sourcePage = backStackEntry.arguments?.getString("sourcePage") ?: "home"
     val startDestination = "home"
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -85,7 +99,6 @@ fun RVNowApp(authViewModel: AuthViewModel, rvViewModel: RVViewModel) {
             modifier = Modifier.align(Alignment.Center),
         )
     }
-
     Scaffold(
         bottomBar = { BottomNavBar(navController, authViewModel) }
     ) { innerPadding ->
@@ -94,34 +107,23 @@ fun RVNowApp(authViewModel: AuthViewModel, rvViewModel: RVViewModel) {
             startDestination = startDestination,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("home") {
-                HomeScreen(navController = navController, authViewModel = authViewModel)
-            }
-            composable("cart") {
-                CartScreen(
-                    navController = navController,
-                    authViewModel = authViewModel,
-                    rvViewModel = rvViewModel
-                )
-            }
+            composable("home") { HomeScreen(navController = navController,authViewModel= authViewModel,) }
+            composable("cart") { CartScreen(
+                navController = navController,
+                authViewModel = authViewModel,
+                rvViewModel = rvViewModel,
+            ) }
             composable("owner") { OwnerScreen(navController = navController) }
-            composable("signup") {
-                SignupScreen(navController = navController, authViewModel = authViewModel)
-            }
-            composable("Signin|up") {
-                LoginScreen(navController = navController, authViewModel = authViewModel)
-            }
+            composable("signup") { SignupScreen(navController = navController) }
+            composable("Signin|up") { LoginScreen(navController = navController, authViewModel = authViewModel) }
             composable("rental") { RentalScreen(navController = navController) }
-            composable("sales") { SalesScreen(navController = navController) }
-            composable("profile") {
-                ProfileScreen(
-                    navController = navController,
-                    authViewModel = authViewModel,
-                    rvViewModel = rvViewModel
-                )
-            }
+            composable("sales") { SalesScreen( navController = navController) }
+            composable("profile") { ProfileScreen(
+                navController = navController,
+                authViewModel = AuthViewModel(),
+                rvViewModel = RVViewModel()
+            ) }
             composable("go_rving") { GoRVingScreen(navController = navController) }
-
             composable("travel_guide_details/{guideId}") { backStackEntry ->
                 val guideId = backStackEntry.arguments?.getString("guideId") ?: ""
                 TravelGuideDetailsScreen(navController = navController, guideId = guideId)
@@ -150,25 +152,34 @@ fun RVNowApp(authViewModel: AuthViewModel, rvViewModel: RVViewModel) {
                 SearchResultsScreen(navController)
             }
 
+
             composable("detail/{rvId}?sourcePage={sourcePage}") { backStackEntry ->
                 val rvId = backStackEntry.arguments?.getString("rvId") ?: ""
+                val rvViewModel: RVViewModel = viewModel()
                 val sourcePage = backStackEntry.arguments?.getString("sourcePage") ?: "home"
-                RVDetailScreen(
-                    rvId = rvId,
-                    rvViewModel = rvViewModel,
-                    authViewModel = authViewModel,
-                    navController = navController,
-                    sourcePage = sourcePage
-                )
+                val authViewModel: AuthViewModel = viewModel()
+                RVDetailScreen(rvId = rvId, rvViewModel = rvViewModel, authViewModel= authViewModel,navController = navController,sourcePage=sourcePage)
+//                RVDetailScreen(rvId = rvId, rvViewModel = rvViewModel, navController = navController)
             }
+
+            composable("go_rving") { GoRVingScreen(navController = navController) }
+            composable("travel_guide_details/{guideId}") { backStackEntry ->
+                val guideId = backStackEntry.arguments?.getString("guideId") ?: ""
+                TravelGuideDetailsScreen(navController = navController, guideId = guideId)
+            }
+
+
+
         }
     }
 }
 
 @Composable
 fun BottomNavBar(navController: NavController, authViewModel: AuthViewModel) {
-    val isLoggedIn by authViewModel.isLoggedIn.collectAsState(false)
+    // 保持原有的认证状态检查逻辑
+    val isLoggedIn by authViewModel.isLoggedIn.observeAsState(false)
 
+    // 定义导航项，保持原有的登录/登出逻辑不变
     val items = listOf(
         NavItem("Home", Icons.Default.Home, "home"),
         NavItem("Rent", Icons.Default.DirectionsCar, "rental"),
@@ -192,7 +203,9 @@ fun BottomNavBar(navController: NavController, authViewModel: AuthViewModel) {
                 label = { Text(item.label) },
                 selected = currentRoute == item.route,
                 onClick = {
+                    // 保持原有的导航逻辑不变
                     navController.navigate(item.route) {
+                        // 仅优化导航栈管理，不影响原有逻辑
                         popUpTo(navController.graph.startDestinationId) {
                             saveState = true
                         }
@@ -206,66 +219,3 @@ fun BottomNavBar(navController: NavController, authViewModel: AuthViewModel) {
 }
 
 data class NavItem(val label: String, val icon: ImageVector, val route: String)
-
-fun getSampleRVs(): List<RV> {
-    return listOf(
-        RV(
-            name = "Luxury RV",
-            id = "1",
-            ownerId = "23",
-            type = RVType.Rental,
-            pricePerDay = 100000.1,
-            description = "Spacious and comfortable",
-            place = "Helsinki",
-            driverLicenceRequired = "B",
-            insurance = mapOf(
-                "provider" to "more on the way",
-                "coverage" to "fully"
-            ),
-            kilometerLimitation = 320,
-            imageUrl = "file:///android_asset/images/1.jpg"
-        ),
-        RV(
-            name = "Off-Road RV",
-            id = "2",
-            ownerId = "24",
-            type = RVType.Rental,
-            pricePerDay = 150000.1,
-            description = "Built for adventure",
-            place = "Kempele",
-            additionalImages = listOf(
-                "file:///android_asset/images/3.jpg",
-                "file:///android_asset/images/1.jpg",
-                "file:///android_asset/images/2.jpg"
-            ),
-            driverLicenceRequired = "B",
-            insurance = mapOf(
-                "provider" to "more on the way",
-                "coverage" to "fully"
-            ),
-            kilometerLimitation = 320,
-            imageUrl = "file:///android_asset/images/2.jpg"
-        ),
-        RV(
-            name = "Camper Van",
-            id = "3",
-            ownerId = "26",
-            type = RVType.Sales,
-            pricePerDay = 300000.1,
-            description = "Compact yet cozy",
-            place = "Oulu",
-            driverLicenceRequired = "B",
-            additionalImages = listOf(
-                "file:///android_asset/images/3.jpg",
-                "file:///android_asset/images/1.jpg",
-                "file:///android_asset/images/2.jpg"
-            ),
-            insurance = mapOf(
-                "provider" to "more on the way",
-                "coverage" to "fully"
-            ),
-            kilometerLimitation = 320,
-            imageUrl = "file:///android_asset/images/3.jpg"
-        )
-    )
-}
