@@ -194,67 +194,67 @@ fun BottomNavBar(navController: NavController, authViewModel: AuthViewModel) {
 
 // 辅助数据类
 data class NavItem(val label: String, val icon: ImageVector, val route: String)
-
-// 以下是原有不变的getSampleRVs函数
-fun getSampleRVs(): List<RV> {
-    return listOf(
-        RV(
-            name = "Luxury RV",
-            id = "1",
-            ownerId ="23",
-            type = RVType.Rental,
-            pricePerDay = 100000.1,
-            description = "Spacious and comfortable",
-            place = "Helsinki",
-            driverLicenceRequired = "B",
-            insurance = mapOf(
-                "provider" to "more on the way",
-                "coverage" to "fully"
-            ),
-            kilometerLimitation = 320,
-            imageUrl = "file:///android_asset/images/1.jpg"
-        ),
-        RV(
-            name = "Off-Road RV",
-            id = "2",
-            ownerId ="24",
-            type = RVType.Rental,
-            pricePerDay = 150000.1,
-            description = "Built for adventure",
-            place = "Kempele",
-            additionalImages = listOf(
-                "file:///android_asset/images/3.jpg",
-                "file:///android_asset/images/1.jpg",
-                "file:///android_asset/images/2.jpg"
-            ),
-            driverLicenceRequired = "B",
-            insurance = mapOf(
-                "provider" to "more on the way",
-                "coverage" to "fully"
-            ),
-            kilometerLimitation = 320,
-            imageUrl = "file:///android_asset/images/2.jpg"
-        ),
-        RV(
-            name = "Camper Van",
-            id = "3",
-            ownerId ="26",
-            type = RVType.Sales,
-            pricePerDay = 300000.1,
-            description = "Compact yet cozy",
-            place = "Oulu",
-            driverLicenceRequired = "B",
-            additionalImages = listOf(
-                "file:///android_asset/images/3.jpg",
-                "file:///android_asset/images/1.jpg",
-                "file:///android_asset/images/2.jpg"
-            ),
-            insurance = mapOf(
-                "provider" to "more on the way",
-                "coverage" to "fully"
-            ),
-            kilometerLimitation = 320,
-            imageUrl = "file:///android_asset/images/3.jpg"
-        )
-    )
-}
+//
+//// 以下是原有不变的getSampleRVs函数
+//fun getSampleRVs(): List<RV> {
+//    return listOf(
+//        RV(
+//            name = "Luxury RV",
+//            id = "1",
+//            ownerId ="23",
+//            type = RVType.Rental,
+//            pricePerDay = 100000.1,
+//            description = "Spacious and comfortable",
+//            place = "Helsinki",
+//            driverLicenceRequired = "B",
+//            insurance = mapOf(
+//                "provider" to "more on the way",
+//                "coverage" to "fully"
+//            ),
+//            kilometerLimitation = 320,
+//            imageUrl = "file:///android_asset/images/1.jpg"
+//        ),
+//        RV(
+//            name = "Off-Road RV",
+//            id = "2",
+//            ownerId ="24",
+//            type = RVType.Rental,
+//            pricePerDay = 150000.1,
+//            description = "Built for adventure",
+//            place = "Kempele",
+//            additionalImages = listOf(
+//                "file:///android_asset/images/3.jpg",
+//                "file:///android_asset/images/1.jpg",
+//                "file:///android_asset/images/2.jpg"
+//            ),
+//            driverLicenceRequired = "B",
+//            insurance = mapOf(
+//                "provider" to "more on the way",
+//                "coverage" to "fully"
+//            ),
+//            kilometerLimitation = 320,
+//            imageUrl = "file:///android_asset/images/2.jpg"
+//        ),
+//        RV(
+//            name = "Camper Van",
+//            id = "3",
+//            ownerId ="26",
+//            type = RVType.Sales,
+//            pricePerDay = 300000.1,
+//            description = "Compact yet cozy",
+//            place = "Oulu",
+//            driverLicenceRequired = "B",
+//            additionalImages = listOf(
+//                "file:///android_asset/images/3.jpg",
+//                "file:///android_asset/images/1.jpg",
+//                "file:///android_asset/images/2.jpg"
+//            ),
+//            insurance = mapOf(
+//                "provider" to "more on the way",
+//                "coverage" to "fully"
+//            ),
+//            kilometerLimitation = 320,
+//            imageUrl = "file:///android_asset/images/3.jpg"
+//        )
+//    )
+//}

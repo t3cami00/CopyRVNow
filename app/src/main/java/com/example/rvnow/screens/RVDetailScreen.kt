@@ -174,6 +174,8 @@ fun RVDetailScreen(
     val rvList by rvViewModel.rvs.collectAsState()
     // Find the RV that matches the provided rvId
     val rv = rvList.firstOrNull { it.id == rvId }
+    val name = rv?.name ?: ""
+
     val isForRental = rv?.isForRental ?: false
     val imageUrl = rv?.imageUrl ?: ""
 
@@ -355,6 +357,7 @@ fun RVDetailScreen(
                                                 rvViewModel.toggleFavorite(
                                                     userId = userId,
                                                     rvId = rvId,
+                                                    name = name,
                                                     isForRental = isForRental,
                                                     imageUrl = imageUrl,
                                                     isForSale = isForSale

@@ -39,6 +39,7 @@ import com.example.rvnow.viewmodels.RVViewModel
 import java.util.*
 import com.google.firebase.auth.FirebaseAuth
 import android.widget.Toast
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
@@ -68,8 +69,8 @@ fun OwnerScreen(navController: NavController, rvViewModel: RVViewModel = viewMod
 //    val additionalImages = additionalImages.toList()
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+            .fillMaxSize(),
+
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Box(
@@ -93,14 +94,23 @@ fun OwnerScreen(navController: NavController, rvViewModel: RVViewModel = viewMod
                 modifier = Modifier.align(Alignment.Center)
             )
         }
-
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp)
+                .background(color = Color.White)
+        ){
+            Text(text = "Publish Your RV", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        }
         // Make the "Publish Your RV" title fixed at the top
-        Text(text = "Publish Your RV", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+
 
         // Add Scrollable area for the inputs
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(20.dp)
                 .verticalScroll(rememberScrollState()) // Add scroll functionality here
                 .padding(top = 10.dp)
         ) {

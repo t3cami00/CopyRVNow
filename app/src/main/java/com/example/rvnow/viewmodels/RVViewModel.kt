@@ -18,8 +18,11 @@ import com.example.rvnow.model.Comment
 import kotlinx.coroutines.Job
 
 import com.example.rvnow.model.CartItem
-import com.example.rvnow.model.Favourite
+import com.example.rvnow.model.Favorite
 import com.example.rvnow.model.Rating
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+
 
 class RVViewModel : ViewModel() {
     private val rvApiService = RVInformation()
@@ -47,8 +50,8 @@ class RVViewModel : ViewModel() {
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems
 
-    private val _fetchedFavourites= MutableStateFlow<List<Favourite>>(emptyList())
-    val fetchedFavourites: StateFlow<List<Favourite>> = _fetchedFavourites
+    private val _fetchedFavourites= MutableStateFlow<List<Favorite>>(emptyList())
+    val fetchedFavourites: StateFlow<List<Favorite>> = _fetchedFavourites
 
     private val _averageRating = MutableStateFlow(0f) // Default to 0f
     val averageRating: StateFlow<Float> = _averageRating
@@ -219,7 +222,7 @@ class RVViewModel : ViewModel() {
         }
     }
     // In RVViewModel
-    fun toggleFavorite(userId: String, rvId: String,imageUrl:String,isForRental: Boolean,
+    fun toggleFavorite(userId: String, rvId: String,name:String, imageUrl:String,isForRental: Boolean,
                        isForSale: Boolean, onComplete: (Boolean) -> Unit = { _ -> }) {
         val currentlyFavorite = _favorites[rvId] ?: false
         // Optimistic update - change UI immediately
@@ -229,9 +232,9 @@ class RVViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val success = if (currentlyFavorite) {
-                    rvApiService.removeFromFavorites(userId, rvId,imageUrl,isForRental,isForSale)
+                    rvApiService.removeFromFavorites(userId, rvId,name,imageUrl,isForRental,isForSale)
                 } else {
-                    rvApiService.addToFavorites(userId, rvId,imageUrl,isForRental,isForSale)
+                    rvApiService.addToFavorites(userId, rvId, name,imageUrl,isForRental,isForSale)
                 }
 
                 if (success) {
@@ -264,7 +267,7 @@ class RVViewModel : ViewModel() {
 //        }
 //    }
 
-//    fun loadFavorites(userId: String) {
+    //    fun loadFavorites(userId: String) {
 //        viewModelScope.launch {
 //            try {
 //                rvApiService.getAllFavorites(userId) { fetchedFavourites ->
@@ -276,9 +279,18 @@ class RVViewModel : ViewModel() {
 //            }
 //        }
 //    }
+    private val rvInformation = RVInformation()  // Assuming RVInformation is the class with getAllFavorites
+
     fun loadFavorites(userId: String) {
-        rvApiService.getAllFavorites(userId) { fetchedFavourites ->
-            _fetchedFavourites.value = fetchedFavourites
+        // Launch a coroutine in the viewModelScope to call the suspend function
+        viewModelScope.launch {
+            try {
+                val fetchedFavorites = rvInformation.getAllFavorites(userId)
+                _fetchedFavourites.value = fetchedFavorites
+            } catch (e: Exception) {
+                // Handle any errors here
+                Log.e("RVViewModel", "Error loading favorites", e)
+            }
         }
     }
 
@@ -339,10 +351,10 @@ class RVViewModel : ViewModel() {
 //    fun checkout(userId: String, callback: (Boolean) -> Unit) {
 //        viewModelScope.launch {
 //            try {
-                // 1. Process payment (implement your payment logic)
+    // 1. Process payment (implement your payment logic)
 //                val paymentSuccess = rvApiService.processPayment(userId, _cartItems)
 
-                // 2. If successful, clear cart
+    // 2. If successful, clear cart
 //                if (paymentSuccess) {
 //                    _cartItems.clear()
 //                    rvApiService.clearCart(userId)

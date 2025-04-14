@@ -3,8 +3,7 @@ package com.example.rvnow.api
 import android.util.Log
 import com.example.rvnow.model.CartItem
 import com.example.rvnow.model.Comment
-import com.example.rvnow.model.Favourite
-import com.google.firebase.Timestamp
+import com.example.rvnow.model.Favorite
 import com.example.rvnow.model.RV
 import com.example.rvnow.model.Rating
 import com.google.firebase.firestore.AggregateField
@@ -14,11 +13,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 //import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.channels.awaitClose
-
 
 
 class RVInformation {
@@ -134,7 +128,7 @@ class RVInformation {
     }
 
     // Add this to your RVApiService class
-    suspend fun addToFavorites(userId: String, rvId: String,imageUrl:String,isForRental:Boolean, isForSale:Boolean): Boolean {
+    suspend fun addToFavorites(userId: String, rvId: String,name:String,imageUrl:String,isForRental:Boolean, isForSale:Boolean): Boolean {
         return try {
             val favoritesRef = FirebaseFirestore.getInstance()
                 .collection("users")
@@ -148,8 +142,8 @@ class RVInformation {
                 "rvId" to rvId,
                 "isForRental" to isForRental,
                 "imageUrl" to imageUrl,
+                "name" to name,
                 "isForSale" to isForSale,
-
                 "createdat" to FieldValue.serverTimestamp()
             )).await()
             true
@@ -158,7 +152,7 @@ class RVInformation {
         }
     }
 
-    suspend fun removeFromFavorites(userId: String, rvId: String,imageUrl:String,isForRental:Boolean,isForSale:Boolean): Boolean {
+    suspend fun removeFromFavorites(userId: String, rvId: String,name:String, imageUrl:String,isForRental:Boolean,isForSale:Boolean): Boolean {
         return try {
             FirebaseFirestore.getInstance()
                 .collection("users")
@@ -188,26 +182,34 @@ class RVInformation {
         }
     }
 
-
-//    fun getAverageRating(rvId: String, onResult: (Float) -> Unit) {
-//        val ratingsRef = db.collection("rvs")
-//            .document(rvId)
-//            .collection("ratings")
 //
-//        val aggregateQuery = ratingsRef.aggregate(
-//            AggregateField.average("rating")
-//        )
+//    fun getAllFavorites(userId: String, onFavouriteFetched: (List<Favourite>) -> Unit) {
+//        db.collection("users")
+//            .document(userId)
+//            .collection("favorites")
+//            .addSnapshotListener { snapshot, e ->
+//                if (e != null) {
+//                    Log.e("Firestore", "Error fetching favourites", e)
+//                    return@addSnapshotListener
+//                }
 //
-//        aggregateQuery.get(AggregateSource.SERVER).addOnCompleteListener { task ->
-//            if (task.isSuccessful) {
-//                val snapshot = task.result
-//                val averageRating = snapshot.get(AggregateField.average("rating")) ?: 0.0
-//                onResult(averageRating.toFloat())
-//            } else {
-//                onResult(0f) // Optional: return default value on failure
+//                Log.d("Firestore", "Fetched snapshot: ${snapshot?.documents?.size ?: 0} documents")
+//
+//                val favorites = snapshot?.documents?.mapNotNull {
+//                    Log.d("Firestore", "Raw document: ${it.data}")
+//                    val fav = it.toObject(Favourite::class.java)
+//                    Log.d("Firestore", "Mapped to Favourite: $fav")
+//                    fav
+//                }
+//
+//                Log.d("Firestore", "Final favourites list: $favorites")
+//                onFavouriteFetched(favorites ?: emptyList())
 //            }
-//        }
 //    }
+
+
+
+
 
     fun getAverageRating(rvId: String, onResult: (Float) -> Unit) {
         val ratingsRef = db.collection("rvs")
@@ -230,52 +232,7 @@ class RVInformation {
     }
 
 
-//    fun getAverageRating(rvId: String, onResult: (Float) -> Unit) {
-//        val ratingsRef = db.collection("rvs")
-//            .document(rvId)
-//            .collection("ratings")
-//
-//        val aggregateQuery = ratingsRef.aggregate(AggregateField.average("rating"))
-//
-//        Log.d("FIREBASE", "Fetching average rating for RV: $rvId")
-//
-//        aggregateQuery.get(AggregateSource.SERVER)
-//            .addOnCompleteListener { task ->
-//                if (task.isSuccessful) {
-//                    val snapshot = task.result
-//                    val averageRating = snapshot.get(AggregateField.average("rating")) ?: 0.0
-//                    Log.d("FIREBASE", "Got average: $averageRating")
-//                    onResult(averageRating.toFloat())
-//                } else {
-//                    Log.e("FIREBASE", "Failed to fetch average", task.exception)
-//                    onResult(0f)
-//                }
-//            }
-//    }
 
-
-
-//    fun getAverageRating(rvId: String, onResult: (Float) -> Unit) {
-////
-//        val ratingsRef = db.collection("rvs")
-//            .document(rvId)
-//            .collection("ratings")
-//
-//        val aggregateQuery = ratingsRef.aggregate(
-//            AggregateField.average("rating")
-//        )
-//
-//        aggregateQuery.get(AggregateSource.SERVER).addOnCompleteListener { task ->
-//            if (task.isSuccessful) {
-//                val snapshot = task.result
-//                val averageRating = snapshot.get(AggregateField.average("rating"))
-//                // Use averageRating as needed
-//            } else {
-//                // Handle the error
-//            }
-//        }
-//
-//    }
 
 
 
@@ -294,44 +251,8 @@ class RVInformation {
             }
     }
 
-//    fun getAllFavorites(userId: String,onFavouriteFetched: (List<Favourite>) -> Unit) {
-//        db.collection("users")
-//            .document(userId)
-//            .collection("favorites")
-//            .addSnapshotListener { snapshot, e ->
-//                if (e != null) {
-//                    Log.e("Firestore", "Error fetching favourties", e)
-//                    return@addSnapshotListener
-//                }
-//
-//                val favorites = snapshot?.documents?.mapNotNull { it.toObject(Favourite::class.java) }
-//                onFavouriteFetched(favorites?: emptyList())
-//            }
-//    }
 
-    fun getAllFavorites(userId: String, onFavouriteFetched: (List<Favourite>) -> Unit) {
-        db.collection("users")
-            .document(userId)
-            .collection("favorites")
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    Log.e("Firestore", "Error fetching favourites", e)
-                    return@addSnapshotListener
-                }
 
-                Log.d("Firestore", "Fetched snapshot: ${snapshot?.documents?.size ?: 0} documents")
-
-                val favorites = snapshot?.documents?.mapNotNull {
-                    Log.d("Firestore", "Raw document: ${it.data}")
-                    val fav = it.toObject(Favourite::class.java)
-                    Log.d("Firestore", "Mapped to Favourite: $fav")
-                    fav
-                }
-
-                Log.d("Firestore", "Final favourites list: $favorites")
-                onFavouriteFetched(favorites ?: emptyList())
-            }
-    }
 
 
 
@@ -370,6 +291,92 @@ class RVInformation {
             }
     }
 
+//    fun getAllFavorites(userId: String, onFavouriteFetched: (List<Favorite>) -> Unit) {
+//        db.collection("users")
+//            .document(userId)
+//            .collection("favorites")
+//            .addSnapshotListener { snapshot, e ->
+//                if (e != null) {
+//                    Log.e("Firestore", "Error fetching favourites", e)
+//                    return@addSnapshotListener
+//                }
+//
+//                val fetchedFavourites = snapshot?.documents?.mapNotNull { it.toObject(Favorite::class.java) }
+//                onFavouriteFetched(fetchedFavourites ?: emptyList())
+//            }
+//
+//    fun getAllFavorites(userId: String, onFavouriteFetched: (List<Favorite>) -> Unit) {
+//        db.collection("users")
+//            .document(userId)
+//            .collection("favorites")
+//            .addSnapshotListener { snapshot, e ->
+//                if (e != null) {
+//                    Log.e("Firestore", "Error fetching favourites", e)
+//                    return@addSnapshotListener
+//                }
+//
+//                val fetchedFavourites = snapshot?.documents?.mapNotNull {
+//                    val fav = it.toObject(Favorite::class.java)
+//                    Log.d("Firestore", "Fetchedfavorite from api: $fav")
+//                    fav
+//                }
+//
+//                Log.d("Firestore", "Fetchedfavorite ${fetchedFavourites?.size} favourites from api")
+//                onFavouriteFetched(fetchedFavourites ?: emptyList())
+//            }
+
+
+    suspend fun getAllFavorites(userId: String): List<Favorite> {
+        return try {
+            val snapshot = db.collection("users")
+                .document(userId)
+                .collection("favorites")
+                .get()
+                .await()
+
+            val favourites = snapshot.documents.mapNotNull {
+                val fav = it.toObject(Favorite::class.java)
+                Log.d("Firestore", "Fetched favorite: $fav")
+                fav
+            }
+
+            Log.d("Firestore", "Fetched ${favourites.size} favorites from Firestore")
+            favourites
+        } catch (e: Exception) {
+            Log.e("Firestore", "Error fetching favorites", e)
+            emptyList()
+        }
+    }
+
+
+
+
+
+
+
+
+//                snapshot?.let {
+//                    val favorites = it.documents.mapNotNull { doc ->
+//                        try {
+//                            val data = doc.data ?: return@mapNotNull null
+//                            Favourite(
+//                                rvId = doc.id,
+//                                name = data["name"] as? String ?: "",
+//                                imageUrl = data["imageUrl"] as? String ?: "",
+//                                isForRental = data["isForRental"] as? Boolean ?: false,
+//                                isForSale = data["isForSale"] as? Boolean ?: false,
+//                                createdat = data["createdat"] as? Timestamp ?: Timestamp.now()
+//                            )
+//                        } catch (e: Exception) {
+//                            Log.e("Firestore", "Error mapping document ${doc.id}", e)
+//                            null
+//                        }
+//                    }
+//                    onFavouriteFetched(favorites)
+//                }
+//            }
+
+
 
     suspend fun addAllRV(rv:RV) {
         try {
@@ -388,155 +395,7 @@ class RVInformation {
     }
 }
 
-// Add an RV to the collection
 
-//    suspend fun addallRV(rv: RV) {
-//        try {
-//            for (rvMap in rvnewList) {
-//                val rvObject = RV(
-//                    id = rvMap["id"] as String,
-//                    ownerId = rvMap["ownerId"] as String,
-//                    name = rvMap["name"] as String,
-////                    type = rvMap["type"] as RVType,
-//                    description = rvMap["description"] as String,
-//                    pricePerDay = rvMap["pricePerDay"] as Double,
-//                    imageUrl = rvMap["imageUrl"] as String,
-//                    place = rvMap["place"] as String,
-//                    additionalImages = rvMap["additionalImages"] as List<String>,
-//                    insurance = rvMap["insurance"] as Map<String, String>,
-//                    driverLicenceRequired = rvMap["driverLicenceRequired"] as String,
-//                    kilometerLimitation = rvMap["kilometerLimitation"] as Int,
-//                    isForSale = rvMap["isForSale"] as Boolean,
-//                    status = rvMap["status"] as String,
-//                    createdAt = rvMap["createdAt"] as Timestamp,
-//                    bookedDates = rvMap["bookedDates"] as List<Map<String, Timestamp>>
-//                )
-//
-//                db.collection("rvs")
-//                    .add(rvObject)
-//                    .addOnSuccessListener { documentReference ->
-//                        Log.d("Firestore", "Document added with ID: ${documentReference.id}")
-//                    }
-//                    .addOnFailureListener { e ->
-//                        Log.w("Firestore", "Error adding document", e)
-//                    }
-//            }
-//        } catch (e: Exception) {
-//            // Handle error (e.g., log exception)
-//            throw e
-//        }
-//    }
-//
-
-
-
-
-
-//    val rvnewList = listOf(
-//        hashMapOf(
-//            "id" to "rv001",
-//            "ownerId" to "owner001",
-//            "name" to "Explorer 2025",
-//            "type" to "Rental", // String equivalent of the enum
-//            "description" to "Perfect for off-road adventures with luxurious interiors.",
-//            "pricePerDay" to 120.0,
-//            "imageUrl" to "https://example.com/images/rv001.jpg",
-//            "place" to "New York, USA",
-//            "additionalImages" to listOf("https://example.com/images/rv001_1.jpg", "https://example.com/images/rv001_2.jpg"),
-//            "insurance" to mapOf("type" to "Comprehensive", "company" to "ABC Insurance"),
-//            "driverLicenceRequired" to "B",
-//            "kilometerLimitation" to 300,
-//            "isForSale" to false,
-//            "status" to "Available",
-//            "createdAt" to Timestamp.now(),
-//            "bookedDates" to listOf(
-//                hashMapOf("startDate" to Timestamp.now(), "endDate" to Timestamp.now())
-//            )
-//        ),
-//        hashMapOf(
-//            "id" to "rv002",
-//            "ownerId" to "owner002",
-//            "name" to "Luxury RV 2024",
-//            "type" to "Sales",
-//            "description" to "A high-end RV with all the comforts of home.",
-//            "pricePerDay" to 250.0,
-//            "imageUrl" to "https://example.com/images/rv002.jpg",
-//            "place" to "Los Angeles, California",
-//            "additionalImages" to listOf("https://example.com/images/rv002_1.jpg", "https://example.com/images/rv002_2.jpg"),
-//            "insurance" to mapOf("type" to "Full Coverage", "company" to "XYZ Insurance"),
-//            "driverLicenceRequired" to "No",
-//            "kilometerLimitation" to 400,
-//            "isForSale" to true,
-//            "status" to "For Sale",
-//            "createdAt" to Timestamp.now(),
-//            "bookedDates" to listOf(
-//                hashMapOf("startDate" to Timestamp.now(), "endDate" to Timestamp.now())
-//            )
-//        ),
-//        hashMapOf(
-//            "id" to "rv003",
-//            "ownerId" to "owner003",
-//            "name" to "Mountain Adventure",
-//            "type" to "Rental",
-//            "description" to "Designed for mountain trips, with extra space for equipment.",
-//            "pricePerDay" to 150.0,
-//            "imageUrl" to "https://example.com/images/rv003.jpg",
-//            "place" to "Denver, Colorado",
-//            "additionalImages" to listOf("https://example.com/images/rv003_1.jpg", "https://example.com/images/rv003_2.jpg"),
-//            "insurance" to mapOf("type" to "Third Party", "company" to "MNO Insurance"),
-//            "driverLicenceRequired" to "Yes",
-//            "kilometerLimitation" to 500,
-//            "isForSale" to false,
-//            "status" to "Available",
-//            "createdAt" to Timestamp.now(),
-//            "bookedDates" to listOf(
-//                hashMapOf("startDate" to Timestamp.now(), "endDate" to Timestamp.now())
-//            )
-//        ),
-//        hashMapOf(
-//            "id" to "rv004",
-//            "ownerId" to "owner004",
-//            "name" to "Coastal Explorer",
-//            "type" to "Rental",
-//            "description" to "Ideal for long road trips along the coast, with a spacious interior.",
-//            "pricePerDay" to 180.0,
-//            "imageUrl" to "https://example.com/images/rv004.jpg",
-//            "place" to "Miami, Florida",
-//            "additionalImages" to listOf("https://example.com/images/rv004_1.jpg", "https://example.com/images/rv004_2.jpg"),
-//            "insurance" to mapOf("type" to "Comprehensive", "company" to "DEF Insurance"),
-//            "driverLicenceRequired" to "Yes",
-//            "kilometerLimitation" to 600,
-//            "isForSale" to true,
-//            "status" to "For Sale",
-//            "createdAt" to Timestamp.now(),
-//            "bookedDates" to listOf(
-//                hashMapOf("startDate" to Timestamp.now(), "endDate" to Timestamp.now())
-//            )
-//        ),
-//        hashMapOf(
-//            "id" to "rv005",
-//            "ownerId" to "owner005",
-//            "name" to "Family RV",
-//            "type" to "Rental",
-//            "description" to "Perfect for family road trips with enough space for everyone.",
-//            "pricePerDay" to 160.0,
-//            "imageUrl" to "https://example.com/images/rv005.jpg",
-//            "place" to "Austin, Texas",
-//            "additionalImages" to listOf("https://example.com/images/rv005_1.jpg", "https://example.com/images/rv005_2.jpg"),
-//            "insurance" to mapOf("type" to "Third Party", "company" to "XYZ Insurance"),
-//            "driverLicenceRequired" to "Yes",
-//            "kilometerLimitation" to 450,
-//            "isForSale" to false,
-//            "status" to "Available",
-//            "createdAt" to Timestamp.now(),
-//            "bookedDates" to listOf(
-//                hashMapOf("startDate" to Timestamp.now(), "endDate" to Timestamp.now())
-//            )
-//        )
-//    )
-
-
-// Loop to add each RV to Firestore
 
 
 

@@ -37,6 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -86,12 +87,10 @@ fun RentalScreen(
         calendar.get(Calendar.DAY_OF_MONTH)
     )
     val image1 = rememberAsyncImagePainter("file:///android_asset/images/11.png")
-    Column(modifier = Modifier.padding(10.dp)) {
+    Column() {
 
         Box(
             modifier = Modifier
-//
-//                .padding(10.dp)
                 .fillMaxWidth()
                 .height(250.dp)
                 .padding(bottom = 16.dp)
@@ -304,41 +303,57 @@ fun RentalScreen(
 
 
 
-
 @Composable
-fun RVItem(rv: RV,navController: NavController) {
+fun RVItem(rv: RV, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-        .clickable { navController.navigate("detail/${rv.id}?sourcePage=rental") },
+            .clickable { navController.navigate("detail/${rv.id}?sourcePage=rental") },
         shape = RoundedCornerShape(8.dp)
     ) {
-        Column {
+        Column(
+            modifier = Modifier.fillMaxWidth(), // Ensure column fills width
+            horizontalAlignment = Alignment.CenterHorizontally // Center children horizontally
+        ) {
             rv.imageUrl?.let { imagePath ->
-                Image(painter = rememberImagePainter(data = rv.imageUrl), contentDescription = rv.name ?: "Unknown Title", modifier = Modifier
+                Image(
+                    painter = rememberImagePainter(data = rv.imageUrl),
+                    contentDescription = rv.name ?: "Unknown Title",
+                    modifier = Modifier
                         .fillMaxWidth()
-                        .height(300.dp), contentScale = ContentScale.Crop)
-
+                        .height(300.dp),
+                    contentScale = ContentScale.Crop
+                )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = rv.name ?: "Unknown Title",
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(4.dp))
+
             Text(
                 text = rv.description,
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
                 fontSize = 14.sp,
-                maxLines = 3
+                maxLines = 3,
+                textAlign = TextAlign.Center
             )
 
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
+
+

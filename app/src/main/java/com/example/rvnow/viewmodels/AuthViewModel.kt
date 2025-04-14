@@ -33,7 +33,7 @@ class AuthViewModel : ViewModel() {
     }
 
     private fun fetchFullName(uid: String) {
-        // Assuming the full name is stored in a Firestore collection called "users"
+
         firestore.collection("users")
             .document(uid)
             .get()
@@ -53,27 +53,4 @@ class AuthViewModel : ViewModel() {
     }
 }
 
-//class AuthViewModel : ViewModel() {
-//    private val auth = FirebaseAuth.getInstance()
-//    private val _isLoggedIn = MutableLiveData(auth.currentUser != null)
-//    val isLoggedIn: LiveData<Boolean> get() = _isLoggedIn
-//    private val _currentUser = MutableLiveData<FirebaseUser?>(auth.currentUser)
-//    val currentUser: LiveData<FirebaseUser?> get() = _currentUser
-//
-//    private val _userInfo = MutableLiveData<FirebaseUser?>()
-//    val userInfo: LiveData<FirebaseUser?> get() = _userInfo
-//
-//    init {
-//        auth.addAuthStateListener {   firebaseAuth ->
-//            _isLoggedIn.value = firebaseAuth.currentUser != null
-////            _currentUser.value = it.currentUser
-//            _userInfo.value = firebaseAuth.currentUser
-//        }
-//    }
-//
-//    // Sign-out function
-//    fun logout() {
-//        FirebaseAuth.getInstance().signOut()
-//        _isLoggedIn.value = false // Update the login status
-//    }
-//}
+
