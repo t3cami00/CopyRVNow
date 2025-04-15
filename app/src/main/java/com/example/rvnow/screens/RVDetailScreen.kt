@@ -88,42 +88,6 @@ import androidx.compose.material.icons.filled.FlipToBack
 import androidx.compose.material.icons.filled.StarHalf
 import androidx.compose.ui.platform.LocalContext
 
-//
-//@Composable
-//fun StarRatingBar(
-//    rating: Float,
-//    averageRating: Float,
-//    onRatingChanged: (Float) -> Unit,
-//    modifier: Modifier = Modifier,
-//    starCount: Int = 1
-//) {
-//    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-//        // Display stars
-//        Row {
-//            for (i in 1..starCount) {
-//                val starValue = i.toFloat()
-//                Icon(
-//                    imageVector = Icons.Filled.Star,
-//                    contentDescription = "Star",
-//                    tint = if (rating >= starValue) Color.Yellow
-//                    else if (averageRating >= starValue) Color.Yellow.copy(alpha = 0.3f)
-//                    else Color.Gray,
-//                    modifier = Modifier
-//                        .size(36.dp)
-//                        .clickable { onRatingChanged(starValue) }
-//                )
-//            }
-//        }
-//
-//        // Display average rating text
-//        Spacer(modifier = Modifier.width(8.dp))
-//        Text(
-//            text = "%.1f/5".format(averageRating),
-//            style = MaterialTheme.typography.bodyLarge,
-//            fontWeight = FontWeight.Bold
-//        )
-//    }
-//}
 
 
 @Composable
@@ -241,8 +205,8 @@ fun RVDetailScreen(
 //    var isFavorite by remember { mutableStateOf(false) }
 
     // Check favorite status when screen loads or user changes
-    LaunchedEffect(rvId, currentUser?.uid) {
-        currentUser?.uid?.let { userId ->
+    LaunchedEffect(rvId, currentUser?.id) {
+        currentUser?.id?.let { userId ->
             rvViewModel.checkFavoriteStatus(userId, rvId) { isFav ->
                 isFavorite = isFav
             }
@@ -395,7 +359,7 @@ fun RVDetailScreen(
                                             // Optimistic UI update
                                             isFavorite = !isFavorite
 
-                                            currentUser?.uid?.let { userId ->
+                                            currentUser?.id?.let { userId ->
                                                 isProcessingFavorite = true
                                                 rvViewModel.toggleFavorite(
                                                     userId = userId,
@@ -447,7 +411,7 @@ fun RVDetailScreen(
                                         onClick = {
                                             if (isAddingToCart) return@IconButton
 
-                                            currentUser?.uid?.let { userId ->
+                                            currentUser?.id?.let { userId ->
                                                 isAddingToCart = true
                                                 rvViewModel.addToCart(userId, it) {
 //                                                    success ->  // Using 'it' here
@@ -508,11 +472,37 @@ fun RVDetailScreen(
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
+//                        Text(
+//                            text = if (sourcePage == "rental") {
+//                                "Price Per Day: \$${it.pricePerDay}"
+//                            } else {
+//                                "Sales Price: \$${it.price ?: "N/A"}"
+//                            },
+//                            fontSize = 16.sp,
+//                            fontWeight = FontWeight.Bold
+//                        )
                         Text(
-                            text = "Price Per Day: \$${it.pricePerDay}",
+                            text = when (sourcePage.lowercase()) {
+                                "rental" -> "Price Per Day: \$${it.pricePerDay}"
+                                "sales" -> "Sales Price: \$${it.price ?: "N/A"}"
+                                "home" -> {
+                                    if (!it.isForSale && it.isPopular) {
+                                        "Price Per Day: \$${it.pricePerDay}"
+                                    } else if (it.isForSale && it.isPopular) {
+                                        "Sales Price: \$${it.price }"
+                                    } else {
+                                        "no Price: N/A"
+                                    }
+                                }
+                                else -> "Price: N/A"
+                            },
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
+
+
+//                         it.isForSale && it.isPopular
+
 
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
@@ -559,7 +549,9 @@ fun RVDetailScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Box(
-                            modifier = Modifier.fillMaxWidth().background(Color.LightGray),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.LightGray),
                             contentAlignment = Alignment.Center
                         ) {
                             // Display stars and average rating
@@ -582,7 +574,7 @@ fun RVDetailScreen(
                                         currentUser?.let { user ->
                                             val newRating = Rating(
                                                 rating = rating,  // Use the rating value
-                                                userId = user.uid  // User's UID
+                                                userId = user.id  // User's UID
                                             )
                                             // Submit the rating
                                             rvViewModel.addRating(rvId, newRating) {
@@ -637,7 +629,7 @@ fun RVDetailScreen(
                                         currentUser?.let { user ->
                                             val newComment = Comment(
                                                 text = commentText,
-                                                userId = user.uid,
+                                                userId = user.id,
                                                 email = user.email ?: "unknown@example.com"
                                             )
                                             rvViewModel.addComment(rvId, newComment)

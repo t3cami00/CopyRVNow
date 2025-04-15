@@ -85,19 +85,6 @@ class RVViewModel : ViewModel() {
             _loading.value = true
             try {
                 var fetchedRVs = rvApiService.fetchAllRVs()
-
-                // 添加硬编码评分和收藏状态
-//                fetchedRVs = fetchedRVs.map { rv ->
-//                    rv.copy(
-//                        averageRating = when (rv.id) {
-//                            "1" -> 4.5
-//                            "2" -> 3.8
-//                            else -> 3.5
-//                        },
-//                        isFavorite = _favorites[rv.id] ?: false
-//                    )
-//                }
-
                 _rvs.value = fetchedRVs
             } catch (e: Exception) {
                 _error.value = "Failed to fetch RVs: ${e.message}"
@@ -306,37 +293,6 @@ class RVViewModel : ViewModel() {
         }
     }
 
-//    fun loadFavoriteRVIds(userId: String, onResult: (List<String>) -> Unit) {
-//        viewModelScope.launch {
-//            val favorites = rvApiService.getAllFavorites(userId)
-//            onResult(favorites)
-//        }
-//
-//    fun fetchCartItems(userId: String) {
-//        viewModelScope.launch {
-//            try {
-//                rvApiService.fetchedCartItems(userId) { cartItems ->
-//                    // Clear the list and add new items
-//                    _cartItems.value = cartItems // Directly assigning the new list
-//                }
-//            } catch (e: Exception) {
-//                // Handle error
-//            }
-//        }
-//    }
-
-    //    fun loadFavorites(userId: String) {
-//        viewModelScope.launch {
-//            try {
-//                rvApiService.getAllFavorites(userId) { fetchedFavourites ->
-//                    // Clear the list and add new items
-//                    _fetchedFavourites.value = fetchedFavourites // Directly assigning the new list
-//                }
-//            } catch (e: Exception) {
-//                // Handle error
-//            }
-//        }
-//    }
     private val rvInformation = RVInformation()  // Assuming RVInformation is the class with getAllFavorites
 
     fun loadFavorites(userId: String) {
@@ -365,6 +321,7 @@ class RVViewModel : ViewModel() {
                     "name" to rv.name,
                     "imageUrl" to rv.imageUrl,
                     "pricePerDay" to rv.pricePerDay,
+
                     "quantity" to 1
                 )
 
@@ -401,37 +358,6 @@ class RVViewModel : ViewModel() {
     }
 
 
-
-
-
-
-
-//    fun checkout(userId: String, callback: (Boolean) -> Unit) {
-//        viewModelScope.launch {
-//            try {
-    // 1. Process payment (implement your payment logic)
-//                val paymentSuccess = rvApiService.processPayment(userId, _cartItems)
-
-    // 2. If successful, clear cart
-//                if (paymentSuccess) {
-//                    _cartItems.clear()
-//                    rvApiService.clearCart(userId)
-//                    callback(true)
-//                } else {
-//                    callback(false)
-//                }
-//            } catch (e: Exception) {
-//                callback(false)
-//            }
-//        }
-//    }
-
-    // 收藏/取消收藏
-//    fun toggleFavorite(rvId: String) {
-//        _favorites[rvId] = !(_favorites[rvId] ?: false)
-//        updateLocalFavoriteStatus(rvId)
-//    }
-
     private fun updateLocalFavoriteStatus(rvId: String) {
         _rvs.value = _rvs.value.map { rv ->
             if (rv.id == rvId) rv.copy(isFavorite = _favorites[rv.id] ?: false) else rv
@@ -466,3 +392,71 @@ class RVViewModel : ViewModel() {
         }
     }
 }
+
+
+
+//    fun loadFavoriteRVIds(userId: String, onResult: (List<String>) -> Unit) {
+//        viewModelScope.launch {
+//            val favorites = rvApiService.getAllFavorites(userId)
+//            onResult(favorites)
+//        }
+//
+//    fun fetchCartItems(userId: String) {
+//        viewModelScope.launch {
+//            try {
+//                rvApiService.fetchedCartItems(userId) { cartItems ->
+//                    // Clear the list and add new items
+//                    _cartItems.value = cartItems // Directly assigning the new list
+//                }
+//            } catch (e: Exception) {
+//                // Handle error
+//            }
+//        }
+//    }
+
+//    fun loadFavorites(userId: String) {
+//        viewModelScope.launch {
+//            try {
+//                rvApiService.getAllFavorites(userId) { fetchedFavourites ->
+//                    // Clear the list and add new items
+//                    _fetchedFavourites.value = fetchedFavourites // Directly assigning the new list
+//                }
+//            } catch (e: Exception) {
+//                // Handle error
+//            }
+//        }
+//    }
+
+
+
+
+
+
+
+
+
+//    fun checkout(userId: String, callback: (Boolean) -> Unit) {
+//        viewModelScope.launch {
+//            try {
+// 1. Process payment (implement your payment logic)
+//                val paymentSuccess = rvApiService.processPayment(userId, _cartItems)
+
+// 2. If successful, clear cart
+//                if (paymentSuccess) {
+//                    _cartItems.clear()
+//                    rvApiService.clearCart(userId)
+//                    callback(true)
+//                } else {
+//                    callback(false)
+//                }
+//            } catch (e: Exception) {
+//                callback(false)
+//            }
+//        }
+//    }
+
+// 收藏/取消收藏
+//    fun toggleFavorite(rvId: String) {
+//        _favorites[rvId] = !(_favorites[rvId] ?: false)
+//        updateLocalFavoriteStatus(rvId)
+//    }

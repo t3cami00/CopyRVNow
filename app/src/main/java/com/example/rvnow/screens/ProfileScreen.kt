@@ -11,8 +11,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -31,15 +29,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
-import com.example.rvnow.model.RV
 import com.example.rvnow.viewmodels.AuthViewModel
 import com.example.rvnow.viewmodels.RVViewModel
-import com.google.firebase.auth.FirebaseUser
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.LaunchedEffect
 import coil.compose.AsyncImage
+import coil.compose.rememberImagePainter
 import com.example.rvnow.model.Favorite
+import com.example.rvnow.model.User
 
 @Composable
 fun ProfileScreen(
@@ -47,38 +44,39 @@ fun ProfileScreen(
     authViewModel: AuthViewModel,
     rvViewModel: RVViewModel = viewModel()
 ) {
-    val cartItems by rvViewModel.cartItems.collectAsState()
-    val isLoggedIn by authViewModel.isLoggedIn.observeAsState(initial = false)
-    val rvList by rvViewModel.rvs.collectAsState()
+//    val cartItems by rvViewModel.cartItems.collectAsState()
+//    val isLoggedIn by authViewModel.isLoggedIn.observeAsState(initial = false)
+//    val rvList by rvViewModel.rvs.collectAsState()
     val userInfo by authViewModel.userInfo.observeAsState()
     val fullName by authViewModel.fullName.observeAsState()
+    val email = userInfo?.email ?: "No Email"  // Fallback value
+    val profilePictureUrl = userInfo?.profilePictureUrl ?: ""  // Fallback to empty string
+
+
 //    val fetchedFavourites by rvViewModel.fetchedFavourites
     val fetchedFavourites by rvViewModel.fetchedFavourites.collectAsState()
 
-//    val fetchedFavourites by rvViewModel.fetchedFavourites.collectAsState(emptyList())
 
-//    LaunchedEffect(userInfo) {
-//        userInfo?.uid?.let {
-//            rvViewModel.loadFavorites(it)
+    LaunchedEffect(userInfo?.id) {
+        if (fetchedFavourites.isNotEmpty()) {
+            rvViewModel.loadFavorites(userInfo?.id ?: "")
+        }else{
+            Log.d("FetchedFavourites from api to the profile page", fetchedFavourites.toString())
+
+        }
+    }
+
+
+//    LaunchedEffect(userInfo?.id) {
+//        userInfo?.id?.let {
+////            rvViewModel.fetchCartItems(it)
+//            Log.d("FetchedFavourites from api to the profile page", fetchedFavourites.toString())
 //        }
 //    }
 
-    LaunchedEffect(userInfo) {
-        if (fetchedFavourites.isEmpty()) {
-            rvViewModel.loadFavorites(userInfo?.uid ?: "")
-        }
-    }
-
-    LaunchedEffect(userInfo?.uid) {
-        userInfo?.uid?.let {
-//            rvViewModel.fetchCartItems(it)
-            Log.d("FetchedFavourites", fetchedFavourites.toString())
-        }
-    }
-
-    LaunchedEffect(fetchedFavourites) {
-        Log.d("FetchedFavourites", "Updated favourites: $fetchedFavourites")
-    }
+//    LaunchedEffect(fetchedFavourites) {
+//        Log.d("FetchedFavourites", "Updated favourites: $fetchedFavourites")
+//    }
 
     Column(
         modifier = Modifier
@@ -107,7 +105,13 @@ fun ProfileScreen(
 
         // 用户信息区域
         Spacer(modifier = Modifier.height(32.dp))
-        UserInfoSection(authViewModel, userInfo, fullName)
+        UserInfoSection(
+            profilePictureUrl = profilePictureUrl,
+            user = userInfo,
+            fullName = fullName,
+            email = email
+        )
+//        UserInfoSection(profilePictureUrl=profilePictureUrl, user =userInfo, fullName=fullName, email=email)
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -126,7 +130,7 @@ fun ProfileScreen(
             // 租赁收藏
             FavoriteSection(
                 title = "Rental Favorites",
-                items = fetchedFavourites,
+                favorites = fetchedFavourites,
                 navController = navController
             )
 
@@ -135,7 +139,7 @@ fun ProfileScreen(
             // 购买收藏
             FavoriteSection(
                 title = "Purchase Favorites",
-                items = fetchedFavourites,
+                favorites = fetchedFavourites,
                 navController = navController
             )
 
@@ -150,39 +154,37 @@ fun ProfileScreen(
     }
 }
 
+
+//work well now
 @Composable
 private fun UserInfoSection(
-    authViewModel: AuthViewModel,
-    userInfo: FirebaseUser?,
-    fullName: String?
+    profilePictureUrl: String?,
+    user: User?,
+    fullName: String?,
+    email: String
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 用户头像
-        Box(
-            modifier = Modifier
-                .size(160.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(80.dp)
-                    .align(Alignment.Center),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
+        val imageUrl = profilePictureUrl ?: ""
 
         // 用户信息
-        userInfo?.let {
+        user?.let {
+
+            Image(
+                painter = rememberImagePainter(imageUrl),
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(160.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentScale = ContentScale.Crop
+            )
+
+
             Text(
-                text = fullName ?: it.displayName ?: "No Name",
+                text = fullName ?: "No Name",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -215,7 +217,7 @@ private fun UserInfoSection(
 @Composable
 private fun FavoriteSection(
     title: String,
-    items: List<Favorite>,
+    favorites: List<Favorite>,
     navController: NavController
 ) {
     Column {
@@ -231,7 +233,7 @@ private fun FavoriteSection(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "${items.size} Favorites",
+                text = "${favorites.size} Favorites",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
@@ -244,9 +246,13 @@ private fun FavoriteSection(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(items) {
+            items(favorites) {
                     rv ->
-                FavoriteRVCard(favorite = rv, onClick = { navController.navigate("detail/${rv.rvId}") })
+                FavoriteRVCard(
+                    favorite = rv,
+                    navController = navController,
+//                    onClick = { navController.navigate("detail/${rv.rvId}?sourcePage=profile") }
+                )
             }
         }
     }
@@ -290,34 +296,116 @@ private fun FavoriteSection(
 //    }
 //}
 
+//@Composable
+//private fun FavoriteRVCard(
+//    favorite: Favorite,
+//    navController: NavController,
+////    favorite: Favorite
+////    onClick: () -> Unit
+//) {
+//    Card(
+//        modifier = Modifier
+//            .width(50.dp),
+////            .clickable(onClick = onClick),
+//        shape = RoundedCornerShape(12.dp)
+//    ) {
+//        Column {
+//            Box(
+//                modifier = Modifier
+//                    .height(120.dp) // Fixed height
+//                    .fillMaxWidth()
+//                    .clickable {
+//
+//                        navController.navigate(
+//                            "detail/${favorite.rvId}?sourcePage=profile"
+//                        ) {
+//                            AsyncImage(
+//                                model = favorite.imageUrl,
+//                                contentDescription = null,
+//                                modifier = Modifier.fillMaxSize(),
+////                    placeholder = painterResource(id = R.drawable.placeholder),
+////                    error = painterResource(id = R.drawable.error_image),
+//                                contentScale = ContentScale.Crop,
+//                                alignment = Alignment.Center
+//                            )
+//                        }
+//
+//
+//                        Column(modifier = Modifier.padding(12.dp)) {
+//                            // 优化后的名称和评分布局
+//                            Row(
+//                                verticalAlignment = Alignment.CenterVertically,
+//                                modifier = Modifier.fillMaxWidth()
+//                            ) {
+//                                Text(
+//                                    text = favorite.name,
+//                                    style = MaterialTheme.typography.titleSmall,
+//                                    maxLines = 1,
+//                                    overflow = TextOverflow.Ellipsis,
+//                                    modifier = Modifier.weight(1f)
+//                                )
+//
+////                    Row(
+////                        verticalAlignment = Alignment.CenterVertically,
+////                        modifier = Modifier.padding(start = 4.dp)
+////                    ) {
+////                        Icon(
+////                            imageVector = Icons.Default.Star,
+////                            contentDescription = "Rating",
+////                            tint = Color(0xFFFFC107),
+////                            modifier = Modifier.size(14.dp)
+////                        )
+////                        Text(
+////                            text = "%.1f".format(rv.averageRating),
+////                            style = MaterialTheme.typography.bodySmall,
+////                            modifier = Modifier.padding(start = 4.dp)
+////                        )
+////                    }
+//                            }
+//
+//                            Spacer(modifier = Modifier.height(4.dp))
+//
+////                Text(
+////                    text = rv.place,
+////                    style = MaterialTheme.typography.bodySmall,
+////                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+////                )
+//                        }
+//
+//
+//                    }
+//        }
+//    }
+//}
+
+
 @Composable
-private fun FavoriteRVCard(favorite: Favorite, onClick: () -> Unit) {
+private fun FavoriteRVCard(
+    favorite: Favorite,
+    navController: NavController,
+) {
     Card(
         modifier = Modifier
-            .width(200.dp)
-            .clickable(onClick = onClick),
+            .width(160.dp) // Adjusted to a reasonable width
+            .clickable {
+                navController.navigate("detail/${favorite.rvId}?sourcePage=profile")
+            },
         shape = RoundedCornerShape(12.dp)
     ) {
         Column {
-            Box(
+            // Image section
+            AsyncImage(
+                model = favorite.imageUrl,
+                contentDescription = null,
                 modifier = Modifier
-                    .height(120.dp) // Fixed height
-                    .fillMaxWidth()
-            ) {
-                AsyncImage(
-                    model = favorite.imageUrl,
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-//                    placeholder = painterResource(id = R.drawable.placeholder),
-//                    error = painterResource(id = R.drawable.error_image),
-                    contentScale = ContentScale.Crop,
-                    alignment = Alignment.Center
-                )
-            }
+                    .height(120.dp)
+                    .fillMaxWidth(),
+                contentScale = ContentScale.Crop,
+                alignment = Alignment.Center
+            )
 
-
+            // Info section
             Column(modifier = Modifier.padding(12.dp)) {
-                // 优化后的名称和评分布局
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -330,28 +418,14 @@ private fun FavoriteRVCard(favorite: Favorite, onClick: () -> Unit) {
                         modifier = Modifier.weight(1f)
                     )
 
-//                    Row(
-//                        verticalAlignment = Alignment.CenterVertically,
-//                        modifier = Modifier.padding(start = 4.dp)
-//                    ) {
-//                        Icon(
-//                            imageVector = Icons.Default.Star,
-//                            contentDescription = "Rating",
-//                            tint = Color(0xFFFFC107),
-//                            modifier = Modifier.size(14.dp)
-//                        )
-//                        Text(
-//                            text = "%.1f".format(rv.averageRating),
-//                            style = MaterialTheme.typography.bodySmall,
-//                            modifier = Modifier.padding(start = 4.dp)
-//                        )
-//                    }
+                    // You can add rating display here if needed
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
 
+                // Optional place or location text, if available
 //                Text(
-//                    text = rv.place,
+//                    text = favorite.place,
 //                    style = MaterialTheme.typography.bodySmall,
 //                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
 //                )
@@ -359,6 +433,8 @@ private fun FavoriteRVCard(favorite: Favorite, onClick: () -> Unit) {
         }
     }
 }
+
+
 
 @Composable
 private fun CustomDivider() {

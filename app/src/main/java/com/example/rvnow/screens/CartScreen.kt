@@ -58,7 +58,7 @@ fun CartScreen(
 //    val context = LocalContext.current
     val isLoggedIn by authViewModel.isLoggedIn.observeAsState(initial = false)
     LaunchedEffect(currentUser) {
-        currentUser?.uid?.let {
+        currentUser?.id?.let {
             rvViewModel.fetchCartItems(it)
         }
     }
