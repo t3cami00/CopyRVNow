@@ -846,7 +846,7 @@ fun RVItem2(
                         // Optimistic UI update
                         isFavorite = !isFavorite
 
-                        currentUser?.uid?.let { userId ->
+                        currentUser?.id?.let { userId ->
                             isProcessingFavorite = true
                             rvViewModel.toggleFavorite(
                                 userId = userId,

@@ -387,8 +387,6 @@ fun RVItem(
 
 
         val rvList by rvViewModel.rvs.collectAsState()
-        // Find the RV that matches the provided rvId
-//        val rvSpecific = rvList.firstOrNull { it.id == rvId }
         val name = rv?.name ?: ""
 
         var currentImageIndex by remember { mutableStateOf(0) }
@@ -401,6 +399,7 @@ fun RVItem(
 
         val isForRental = rv?.isForRental ?: false
         val imageUrl = rv?.imageUrl ?: ""
+//        val salesPrice = rv?.salesPrice ?:""
 //
         val isForSale = rv.isForSale ?: false
 
@@ -501,7 +500,7 @@ fun RVItem(
                         // Optimistic UI update
                         isFavorite = !isFavorite
 
-                        currentUser?.uid?.let { userId ->
+                        currentUser?.id?.let { userId ->
                             isProcessingFavorite = true
                             rvViewModel.toggleFavorite(
                                 userId = userId,

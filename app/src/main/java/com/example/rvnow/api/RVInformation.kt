@@ -54,24 +54,6 @@ class RVInformation {
     }
 
 
-//    fun addComment(rvId: String, comment: Comment) {
-//        val commentRef = FirebaseFirestore.getInstance()
-//            .collection("rvs")           // The "rv" collection
-//            .document(rvId)             // The specific RV document ID
-//            .collection("comments")     // The "comments" subcollection
-//            .document()                 // Firestore automatically generates an ID for the comment
-//
-//        val commentWithId = comment.copy(id = commentRef.id)  // Set the Firestore generated ID to the comment
-//
-//        // Now add the comment to Firestore
-//        commentRef.set(commentWithId)
-//            .addOnSuccessListener {
-//                Log.d("Firestore", "Comment added successfully!")
-//            }
-//            .addOnFailureListener { e ->
-//                Log.e("Firestore", "Error adding comment", e)
-//            }
-//    }
 
     fun addComment(rvId: String, comment: Comment) {
         val commentRef = FirebaseFirestore.getInstance()
@@ -182,33 +164,6 @@ class RVInformation {
         }
     }
 
-//
-//    fun getAllFavorites(userId: String, onFavouriteFetched: (List<Favourite>) -> Unit) {
-//        db.collection("users")
-//            .document(userId)
-//            .collection("favorites")
-//            .addSnapshotListener { snapshot, e ->
-//                if (e != null) {
-//                    Log.e("Firestore", "Error fetching favourites", e)
-//                    return@addSnapshotListener
-//                }
-//
-//                Log.d("Firestore", "Fetched snapshot: ${snapshot?.documents?.size ?: 0} documents")
-//
-//                val favorites = snapshot?.documents?.mapNotNull {
-//                    Log.d("Firestore", "Raw document: ${it.data}")
-//                    val fav = it.toObject(Favourite::class.java)
-//                    Log.d("Firestore", "Mapped to Favourite: $fav")
-//                    fav
-//                }
-//
-//                Log.d("Firestore", "Final favourites list: $favorites")
-//                onFavouriteFetched(favorites ?: emptyList())
-//            }
-//    }
-
-
-
 
 
     fun getAverageRating(rvId: String, onResult: (Float) -> Unit) {
@@ -293,6 +248,101 @@ class RVInformation {
             }
     }
 
+
+
+
+    suspend fun getAllFavorites(userId: String): List<Favorite> {
+            if (userId.isBlank()) {
+                Log.e("Firestore", "Invalid userId: '$userId'")
+                return emptyList()
+            }
+            return try {
+                val snapshot = db.collection("users")
+                    .document(userId)
+                    .collection("favorites")
+                    .get()
+                    .await()
+
+                val favourites = snapshot.documents.mapNotNull {
+                    val fav = it.toObject(Favorite::class.java)
+                    Log.d("Firestore", "Fetched favorite: $fav")
+                    fav
+                }
+
+                Log.d("Firestore", "Fetched ${favourites.size} favorites from Firestore")
+                favourites
+            } catch (e: Exception) {
+                Log.e("Firestore", "Error fetching favorites", e)
+                emptyList()
+            }
+        }
+
+
+    suspend fun addAllRV(rv:RV) {
+        try {
+
+            rvCollection.document(rv.id).set(rv).await()
+            Log.d("Firestore", "Document added/updated with ID: ${rv.id}")
+            // Use await() to properly suspend execution until Firestore operation completes
+//                rvCollection.document(rvObject.id).set(rvObject).await()
+
+//                Log.d("Firestore", "Document added/updated with ID: ${rvObject.id}")
+
+        } catch (e: Exception) {
+            Log.e("Firestore", "Error adding RVs: ${e.message}", e)
+            throw e
+        }
+    }
+}
+
+
+
+//    fun addComment(rvId: String, comment: Comment) {
+//        val commentRef = FirebaseFirestore.getInstance()
+//            .collection("rvs")           // The "rv" collection
+//            .document(rvId)             // The specific RV document ID
+//            .collection("comments")     // The "comments" subcollection
+//            .document()                 // Firestore automatically generates an ID for the comment
+//
+//        val commentWithId = comment.copy(id = commentRef.id)  // Set the Firestore generated ID to the comment
+//
+//        // Now add the comment to Firestore
+//        commentRef.set(commentWithId)
+//            .addOnSuccessListener {
+//                Log.d("Firestore", "Comment added successfully!")
+//            }
+//            .addOnFailureListener { e ->
+//                Log.e("Firestore", "Error adding comment", e)
+//            }
+//    }
+
+
+
+//
+//    fun getAllFavorites(userId: String, onFavouriteFetched: (List<Favourite>) -> Unit) {
+//        db.collection("users")
+//            .document(userId)
+//            .collection("favorites")
+//            .addSnapshotListener { snapshot, e ->
+//                if (e != null) {
+//                    Log.e("Firestore", "Error fetching favourites", e)
+//                    return@addSnapshotListener
+//                }
+//
+//                Log.d("Firestore", "Fetched snapshot: ${snapshot?.documents?.size ?: 0} documents")
+//
+//                val favorites = snapshot?.documents?.mapNotNull {
+//                    Log.d("Firestore", "Raw document: ${it.data}")
+//                    val fav = it.toObject(Favourite::class.java)
+//                    Log.d("Firestore", "Mapped to Favourite: $fav")
+//                    fav
+//                }
+//
+//                Log.d("Firestore", "Final favourites list: $favorites")
+//                onFavouriteFetched(favorites ?: emptyList())
+//            }
+//    }
+
 //    fun getAllFavorites(userId: String, onFavouriteFetched: (List<Favorite>) -> Unit) {
 //        db.collection("users")
 //            .document(userId)
@@ -328,27 +378,31 @@ class RVInformation {
 //            }
 
 
-    suspend fun getAllFavorites(userId: String): List<Favorite> {
-        return try {
-            val snapshot = db.collection("users")
-                .document(userId)
-                .collection("favorites")
-                .get()
-                .await()
-
-            val favourites = snapshot.documents.mapNotNull {
-                val fav = it.toObject(Favorite::class.java)
-                Log.d("Firestore", "Fetched favorite: $fav")
-                fav
-            }
-
-            Log.d("Firestore", "Fetched ${favourites.size} favorites from Firestore")
-            favourites
-        } catch (e: Exception) {
-            Log.e("Firestore", "Error fetching favorites", e)
-            emptyList()
-        }
-    }
+//suspend fun getAllFavorites(userId: String): List<Favorite> {
+//    if (userId.isBlank()) {
+//        Log.e("Firestore", "Invalid userId: '$userId'")
+//        return emptyList()
+//    }
+//
+//    return try {
+//        val snapshot = db.collection("users")
+//            .document(userId)
+//            .collection("favorites")
+//            .get()
+//            .await()
+//
+//        snapshot.documents.mapNotNull {
+//            val fav = it.toObject(Favorite::class.java).also {
+//                Log.d("Firestore", "Fetched favorite: $it")
+//            }
+//        }.also {
+//            Log.d("Firestore", "Fetched ${it.size} favorites from Firestore")
+//        }
+//    } catch (e: Exception) {
+//        Log.e("Firestore", "Error fetching favorites", e)
+//        emptyList()
+//    }
+//}
 
 
 
@@ -380,22 +434,7 @@ class RVInformation {
 
 
 
-    suspend fun addAllRV(rv:RV) {
-        try {
 
-            rvCollection.document(rv.id).set(rv).await()
-            Log.d("Firestore", "Document added/updated with ID: ${rv.id}")
-            // Use await() to properly suspend execution until Firestore operation completes
-//                rvCollection.document(rvObject.id).set(rvObject).await()
-
-//                Log.d("Firestore", "Document added/updated with ID: ${rvObject.id}")
-
-        } catch (e: Exception) {
-            Log.e("Firestore", "Error adding RVs: ${e.message}", e)
-            throw e
-        }
-    }
-}
 
 
 

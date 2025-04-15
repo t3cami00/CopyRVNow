@@ -10,7 +10,9 @@ data class User(
     val fullName: String = "",
     val passwordHash: String = "",
     val role: UserRole = UserRole.Customer,
-    val profilePictureUrl: String? = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSdz0utA21KB1xCbObh4vipxTQ8Bw9XMRoyyU8HTWeukL-Cic4PUjf3gE&usqp=CAE&s",
+    @get:PropertyName("profilePictureUrl") // This is the Firestore field name
+    val profilePictureUrl: String? = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgOOZxJ0NLa746ipg_PJu0UKC3nDhhpoNyhtjcEp_Fesa1So1Lvbgdfdc&s",
+//    val profilePictureUrl: String? = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgOOZxJ0NLa746ipg_PJu0UKC3nDhhpoNyhtjcEp_Fesa1So1Lvbgdfdc&s",
     val createdAt: Timestamp = Timestamp.now(),
     val updatedAt: Timestamp = Timestamp.now(),
     val status: String = "Active"

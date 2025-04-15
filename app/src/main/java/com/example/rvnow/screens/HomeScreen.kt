@@ -163,6 +163,7 @@ fun HomeScreen(
     rvViewModel: RVViewModel = viewModel(),
     navController: NavController,
     authViewModel: AuthViewModel
+
 ) {
     val rvList by rvViewModel.rvs.collectAsState()
     val heroImage = rememberAsyncImagePainter("file:///android_asset/images/brighter_image_2.png")
@@ -699,8 +700,8 @@ private fun RVCard(
     // Fixed height for the text section (card height - image height - padding)
     val textSectionHeight = cardHeight - imageHeight - CARD_CONTENT_PADDING * 2
     var isProcessingFavorite by remember { mutableStateOf(false) }
-    LaunchedEffect(rvId, currentUser?.uid) {
-        currentUser?.uid?.let { userId ->
+    LaunchedEffect(rvId, currentUser?.id) {
+        currentUser?.id?.let { userId ->
             rvViewModel.checkFavoriteStatus(userId, rvId) { isFav ->
                 isFavorite = isFav
             }
@@ -877,7 +878,7 @@ private fun RVCard(
                             // Optimistic UI update
                             isFavorite = !isFavorite
 
-                            currentUser?.uid?.let { userId ->
+                            currentUser?.id?.let { userId ->
                                 isProcessingFavorite = true
                                 rvViewModel.toggleFavorite(
                                     userId = userId,
@@ -929,9 +930,9 @@ private fun RVCard(
 
 
 
-                    // Spacer to push content up if there's extra space
+                // Spacer to push content up if there's extra space
 //                    Spacer(modifier = Modifier.weight(1f))
-                }
             }
         }
     }
+}
