@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -35,6 +36,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextFieldDefaults
+import kotlinx.coroutines.launch
 
 // Define spacing constants consistent with HomeScreen
 private val SECTION_SPACING = 32.dp
@@ -63,6 +65,9 @@ fun GoRVingScreen(
     val travelGuides by viewModel.travelGuides.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+
+    // 添加协程作用域用于处理搜索
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         viewModel.loadDestinations()
@@ -145,10 +150,15 @@ fun GoRVingScreen(
                         trailingIcon = {
                             IconButton(onClick = {
                                 if (searchQuery.isNotEmpty()) {
-                                    // 确保在导航前执行搜索
-                                    viewModel.search(searchQuery)
-                                    // 添加延迟以确保搜索完成
-                                    navController.navigate("search_results")
+                                    // 使用协程处理搜索，确保在导航前完成搜索
+                                    coroutineScope.launch {
+                                        // 清除之前的搜索结果
+                                        viewModel.clearSearch()
+                                        // 执行搜索
+                                        viewModel.search(searchQuery)
+                                        // 导航到搜索结果页面
+                                        navController.navigate("search_results")
+                                    }
                                 }
                             }) {
                                 Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Black)
@@ -160,10 +170,15 @@ fun GoRVingScreen(
                         keyboardActions = KeyboardActions(
                             onSearch = {
                                 if (searchQuery.isNotEmpty()) {
-                                    // 确保在导航前执行搜索
-                                    viewModel.search(searchQuery)
-                                    // 添加延迟以确保搜索完成
-                                    navController.navigate("search_results")
+                                    // 使用协程处理搜索，确保在导航前完成搜索
+                                    coroutineScope.launch {
+                                        // 清除之前的搜索结果
+                                        viewModel.clearSearch()
+                                        // 执行搜索
+                                        viewModel.search(searchQuery)
+                                        // 导航到搜索结果页面
+                                        navController.navigate("search_results")
+                                    }
                                 }
                             }
                         ),
@@ -403,22 +418,25 @@ fun CountryCard(
 
     Card(
         modifier = modifier
-            .width(160.dp)
-            .height(100.dp)
+            .width(120.dp)
+            .height(80.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(CARD_CORNER_RADIUS),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // 国旗背景（填充整个卡片）
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
             AsyncImage(
                 model = flagImageUrl,
-                contentDescription = "$country flag",
+                contentDescription = country,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
 
-            // 半透明遮罩增强文字可读性
+            // 半透明覆盖层
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -427,16 +445,12 @@ fun CountryCard(
 
             Text(
                 text = country,
-                fontSize = 14.sp,
+                color = Color.White,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = FontFamily.Default,
-                color = Color.White,
-                textAlign = TextAlign.End,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 8.dp, end = 8.dp)
+                textAlign = TextAlign.Center
             )
-
         }
     }
 }
@@ -460,7 +474,7 @@ fun TravelGuideCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp)
+                    .height(120.dp)
             ) {
                 AsyncImage(
                     model = travelGuide.imageUrl,
@@ -468,26 +482,6 @@ fun TravelGuideCard(
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-
-                if (travelGuide.tags.isNotEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .padding(8.dp)
-                            .background(
-                                color = Color.Black.copy(alpha = 0.4f),
-                                shape = RoundedCornerShape(16.dp)
-                            )
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
-                        Text(
-                            text = travelGuide.tags.first(),
-                            color = Color.White,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
             }
 
             Column(
@@ -495,19 +489,21 @@ fun TravelGuideCard(
             ) {
                 Text(
                     text = travelGuide.title,
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Default,
-                    color = Color.Black,
-                    maxLines = 1
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "By RVNow | 2025-04-16",
+                    text = travelGuide.summary,
                     fontSize = 14.sp,
                     fontFamily = FontFamily.Default,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     color = Color.Gray
                 )
             }

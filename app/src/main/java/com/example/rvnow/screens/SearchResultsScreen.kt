@@ -58,12 +58,14 @@ fun SearchResultsScreen(
     val tertiaryColor = Color(0xFF6B8E23)  // Moss green
     val neutralColor = Color(0xFFA78A7F)   // Light camel
 
-    // 确保在离开页面时不清除搜索结果
-    // DisposableEffect(Unit) {
-    //     onDispose {
-    //         viewModel.clearSearch()
-    //     }
-    // }
+    // 添加LaunchedEffect以确保在屏幕加载时能够显示最新的搜索结果
+    LaunchedEffect(Unit) {
+        // 如果搜索结果为空，显示加载状态
+        if (searchResults.isEmpty() && !isLoading && error == null) {
+            viewModel.loadDestinations()
+            viewModel.loadTravelGuides()
+        }
+    }
 
     Scaffold(
         topBar = {
