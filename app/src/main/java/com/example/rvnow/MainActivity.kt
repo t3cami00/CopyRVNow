@@ -161,15 +161,6 @@ fun RVNowApp(authViewModel: AuthViewModel,rvViewModel:RVViewModel) {
                 RVDetailScreen(rvId = rvId, rvViewModel = rvViewModel, authViewModel= authViewModel,navController = navController,sourcePage=sourcePage)
 //                RVDetailScreen(rvId = rvId, rvViewModel = rvViewModel, navController = navController)
             }
-
-            composable("go_rving") { GoRVingScreen(navController = navController) }
-            composable("travel_guide_details/{guideId}") { backStackEntry ->
-                val guideId = backStackEntry.arguments?.getString("guideId") ?: ""
-                TravelGuideDetailsScreen(navController = navController, guideId = guideId)
-            }
-
-
-
         }
     }
 }
