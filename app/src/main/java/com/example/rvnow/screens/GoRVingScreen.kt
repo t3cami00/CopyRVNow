@@ -43,6 +43,8 @@ private val HORIZONTAL_PADDING = 16.dp
 private val CARD_CORNER_RADIUS = 12.dp
 private val CARD_CONTENT_PADDING = 12.dp
 
+val primaryColor = Color(0xFFE27D5F)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GoRVingScreen(
@@ -70,36 +72,34 @@ fun GoRVingScreen(
 
     Scaffold(
         topBar = {
-            Column {
-                TopAppBar(
-                    title = {
+            Column(
+                modifier = Modifier.background(Color.White)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(primaryColor.copy(alpha = 0.2f))
+                        .padding(vertical = 12.dp, horizontal = HORIZONTAL_PADDING)
+                ) {
+                    Column {
+                        Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
+
                         Text(
                             "Go RVing",
                             fontFamily = FontFamily.Serif,
                             fontWeight = FontWeight.Bold,
                             fontSize = 24.sp,
-                            color = Color.Black  // Changed to black as requested
+                            color = Color.Black
                         )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.White,
-                        titleContentColor = Color.Black
-                    )
-                )
-
-                // Added background banner for title as requested
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(primaryColor.copy(alpha = 0.2f))
-                        .padding(vertical = 8.dp, horizontal = HORIZONTAL_PADDING)
-                ) {
-                    Text(
-                        "Discover amazing RV destinations and travel guides",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Black
-                    )
+                        Spacer(modifier = Modifier.height(CARD_CORNER_RADIUS))
+                        Text(
+                            "Discover amazing RV destinations",
+                            fontFamily = FontFamily.Serif,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black
+                        )
+                    }
                 }
             }
         }
@@ -141,7 +141,7 @@ fun GoRVingScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = HORIZONTAL_PADDING),
-                        placeholder = { Text("Search destinations or travel guides", color = Color.Gray) },
+                        placeholder = { Text("Search destinations", color = Color.Gray) },
                         trailingIcon = {
                             IconButton(onClick = {
                                 if (searchQuery.isNotEmpty()) {
@@ -184,7 +184,7 @@ fun GoRVingScreen(
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = FontFamily.Default,
-                            color = Color.Black,  // Changed to black as requested
+                            color = Color.Black,
                             modifier = Modifier.padding(horizontal = HORIZONTAL_PADDING)
                         )
 
@@ -192,8 +192,8 @@ fun GoRVingScreen(
 
                         LazyRow(
                             contentPadding = PaddingValues(horizontal = HORIZONTAL_PADDING),
-                            horizontalArrangement = Arrangement.spacedBy(SECTION_SPACING_SMALL)
-                        ) {
+                            horizontalArrangement = Arrangement.spacedBy(SECTION_SPACING_SMALL))
+                        {
                             items(featuredDestinations) { destination ->
                                 FeaturedDestinationCard(
                                     destination = destination,
@@ -215,7 +215,7 @@ fun GoRVingScreen(
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = FontFamily.Default,
-                            color = Color.Black,  // Changed to black as requested
+                            color = Color.Black,
                             modifier = Modifier.padding(horizontal = HORIZONTAL_PADDING)
                         )
 
@@ -226,8 +226,8 @@ fun GoRVingScreen(
 
                         LazyRow(
                             contentPadding = PaddingValues(horizontal = HORIZONTAL_PADDING),
-                            horizontalArrangement = Arrangement.spacedBy(SECTION_SPACING_SMALL)
-                        ) {
+                            horizontalArrangement = Arrangement.spacedBy(SECTION_SPACING_SMALL))
+                        {
                             items(countries) { country ->
                                 CountryCard(
                                     country = country,
@@ -252,7 +252,7 @@ fun GoRVingScreen(
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = FontFamily.Default,
-                            color = Color.Black,  // Changed to black as requested
+                            color = Color.Black,
                             modifier = Modifier.padding(horizontal = HORIZONTAL_PADDING)
                         )
 
@@ -268,39 +268,6 @@ fun GoRVingScreen(
                                     onClick = {
                                         navController.navigate("travel_guide_details/${guide.id}")
                                     }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Popular destinations
-                item {
-                    Column {
-                        Text(
-                            text = "Popular Destinations",
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily.Default,
-                            color = Color.Black,  // Changed to black as requested
-                            modifier = Modifier.padding(horizontal = HORIZONTAL_PADDING)
-                        )
-
-                        Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
-
-                        // Popular destinations list
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            destinations.take(10).forEach { destination ->
-                                DestinationListItem(
-                                    destination = destination,
-                                    onClick = {
-                                        navController.navigate("destination_details/${destination.id}")
-                                    },
-                                    modifier = Modifier.padding(
-                                        horizontal = HORIZONTAL_PADDING
-                                    )
                                 )
                             }
                         }
@@ -335,16 +302,15 @@ fun FeaturedDestinationCard(
                 contentScale = ContentScale.Crop
             )
 
-            // Add semi-transparent overlay with 50% transparency as requested
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(80.dp)
                     .align(Alignment.BottomCenter)
-                    .background(
-                        neutralColor.copy(alpha = 0.5f)  // 50% transparency as requested
+//                    .background(
+//                        neutralColor.copy(alpha = 0.5f)
                     )
-            )
+
 
             Column(
                 modifier = Modifier
@@ -353,7 +319,7 @@ fun FeaturedDestinationCard(
             ) {
                 Text(
                     text = destination.name,
-                    color = Color.White,
+                    color = Color.Black,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Default
@@ -361,38 +327,42 @@ fun FeaturedDestinationCard(
 
                 Text(
                     text = "${destination.location}, ${destination.country}",
-                    color = Color.White,
+                    color = Color.Gray,
                     fontSize = 14.sp,
                     fontFamily = FontFamily.Default
+
                 )
             }
 
-            // Rating badge with standardized style
+            // 添加评分标签
             if (destination.rating > 0) {
-                Row(
+                Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
                         .background(
-                            color = Color.Black.copy(alpha = 0.4f),  // 50% transparency as requested
+                            color = primaryColor,
                             shape = RoundedCornerShape(16.dp)
                         )
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
-                    Icon(
-                        Icons.Default.Star,
-                        contentDescription = "Rating",
-                        tint = Color(0xFFFFC107),  // Yellow star
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "${destination.rating}",
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Star,
+                            contentDescription = "Rating",
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = "${destination.rating}",
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }
@@ -405,8 +375,8 @@ fun CountryCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Get flag image URL for the country
-    val flagImageUrl = getFlagImageUrl(country)
+    // Get flag image URL for the country using a flag API
+    val flagImageUrl = "https://countryflagsapi.com/png/${country.toLowerCase().replace(" ", "%20")}"
 
     Card(
         modifier = modifier
@@ -434,25 +404,30 @@ fun CountryCard(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Flag image
-                AsyncImage(
-                    model = flagImageUrl,
-                    contentDescription = "$country flag",
+                // Flag image with proper aspect ratio (3:2)
+                Box(
                     modifier = Modifier
-                        .size(60.dp)
-                        .clip(RoundedCornerShape(4.dp)),
-                    contentScale = ContentScale.Crop
-                )
+                        .width(72.dp)
+                        .height(48.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                ) {
+                    AsyncImage(
+                        model = flagImageUrl,
+                        contentDescription = "$country flag",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.FillBounds
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Country name
                 Text(
                     text = country,
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Default,
-                    color = Color.Black,  // Changed to black as requested
+                    color = Color.Black,
                     textAlign = TextAlign.Center
                 )
             }
@@ -488,14 +463,13 @@ fun TravelGuideCard(
                     contentScale = ContentScale.Crop
                 )
 
-                // Add tag if available
                 if (travelGuide.tags.isNotEmpty()) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopStart)
                             .padding(8.dp)
                             .background(
-                                color = Color.Black.copy(alpha = 0.4f),  // 50% transparency as requested
+                                color = Color.Black.copy(alpha = 0.4f),
                                 shape = RoundedCornerShape(16.dp)
                             )
                             .padding(horizontal = 8.dp, vertical = 4.dp)
@@ -515,10 +489,10 @@ fun TravelGuideCard(
             ) {
                 Text(
                     text = travelGuide.title,
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Default,
-                    color = Color.Black,  // Changed to black as requested
+                    color = Color.Black,
                     maxLines = 1
                 )
 
@@ -526,122 +500,11 @@ fun TravelGuideCard(
 
                 Text(
                     text = "By RVNow | 2025-04-16",
-                    fontSize = 12.sp,
-                    fontFamily = FontFamily.Default,
-                    color = Color.Gray
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun DestinationListItem(
-    destination: RVDestination,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(100.dp)  // Fixed height for all cards
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(CARD_CORNER_RADIUS),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AsyncImage(
-                model = destination.imageUrl,
-                contentDescription = destination.name,
-                modifier = Modifier
-                    .width(120.dp)
-                    .fillMaxHeight()
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = CARD_CORNER_RADIUS,
-                            bottomStart = CARD_CORNER_RADIUS
-                        )
-                    ),
-                contentScale = ContentScale.Crop
-            )
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(CARD_CONTENT_PADDING)
-            ) {
-                Text(
-                    text = destination.name,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.Default,
-                    color = Color.Black  // Changed to black as requested
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = "${destination.location}, ${destination.country}",
                     fontSize = 14.sp,
                     fontFamily = FontFamily.Default,
                     color = Color.Gray
                 )
             }
-
-            // Standardized rating display with star icon
-            if (destination.rating > 0) {
-                Row(
-                    modifier = Modifier
-                        .padding(end = CARD_CONTENT_PADDING)
-                        .background(
-                            color = Color.Black.copy(alpha = 0.4f),  // 50% transparency as requested
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.Star,
-                        contentDescription = "Rating",
-                        tint = Color(0xFFFFC107),  // Yellow star
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "${destination.rating}",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                }
-            }
         }
-    }
-}
-
-// Helper function to get flag image URL for a country
-fun getFlagImageUrl(country: String): String {
-    // In a real app, you would use a proper flag image API or have these stored in your resources
-    // For this example, we're using a public flag API
-    return when (country) {
-        "United States" -> "https://flagcdn.com/w320/us.png"
-        "Canada" -> "https://flagcdn.com/w320/ca.png"
-        "Australia" -> "https://flagcdn.com/w320/au.png"
-        "New Zealand" -> "https://flagcdn.com/w320/nz.png"
-        "United Kingdom" -> "https://flagcdn.com/w320/gb.png"
-        "France" -> "https://flagcdn.com/w320/fr.png"
-        "Germany" -> "https://flagcdn.com/w320/de.png"
-        "Italy" -> "https://flagcdn.com/w320/it.png"
-        "Spain" -> "https://flagcdn.com/w320/es.png"
-        "Japan" -> "https://flagcdn.com/w320/jp.png"
-        "China" -> "https://flagcdn.com/w320/cn.png"
-        "Brazil" -> "https://flagcdn.com/w320/br.png"
-        "Mexico" -> "https://flagcdn.com/w320/mx.png"
-        "South Africa" -> "https://flagcdn.com/w320/za.png"
-        else -> "https://flagcdn.com/w320/un.png"  // UN flag as default
     }
 }

@@ -170,13 +170,13 @@ fun DestinationDetailsScreen(
                             }
 
                             // 添加评分标签
-                            if (destination.rating != null) {
+                            if (destination.rating > 0) {
                                 Box(
                                     modifier = Modifier
                                         .align(Alignment.TopEnd)
-                                        .padding(HORIZONTAL_PADDING, SECTION_SPACING_SMALL)
+                                        .padding(8.dp)
                                         .background(
-                                            color = Color.Black.copy(alpha = 0.4f),
+                                            color = primaryColor,
                                             shape = RoundedCornerShape(16.dp)
                                         )
                                         .padding(horizontal = 8.dp, vertical = 4.dp)
@@ -188,7 +188,7 @@ fun DestinationDetailsScreen(
                                         Icon(
                                             Icons.Default.Star,
                                             contentDescription = "Rating",
-                                            tint = Color.Yellow,
+                                            tint = Color.White,
                                             modifier = Modifier.size(16.dp)
                                         )
                                         Text(
@@ -332,66 +332,66 @@ fun DestinationDetailsScreen(
                     }
 
                     // 分隔线
-                    item {
-                        Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
-
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .padding(horizontal = HORIZONTAL_PADDING)
-                                .background(Color.LightGray.copy(alpha = 0.5f))
-                        )
-
-                        Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
-                    }
+//                    item {
+//                        Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
+//
+//                        Box(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .height(1.dp)
+//                                .padding(horizontal = HORIZONTAL_PADDING)
+//                                .background(Color.LightGray.copy(alpha = 0.5f))
+//                        )
+//
+//                        Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
+//                    }
 
                     // 设施部分
-                    item {
-                        Column(
-                            modifier = Modifier.padding(horizontal = HORIZONTAL_PADDING)
-                        ) {
-                            Text(
-                                text = "Facilities",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = FontFamily.Default
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            if (!destination.facilities.isNullOrEmpty()) {
-                                LazyRow(
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    modifier = Modifier.padding(vertical = 8.dp)
-                                ) {
-                                    items(destination.facilities) { facility ->
-                                        Surface(
-                                            modifier = Modifier.padding(vertical = 4.dp),
-                                            shape = RoundedCornerShape(16.dp),
-                                            color = primaryColor.copy(alpha = 0.1f),
-                                            tonalElevation = 0.dp
-                                        ) {
-                                            Text(
-                                                text = facility,
-                                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                                fontSize = 14.sp,
-                                                fontWeight = FontWeight.Medium,
-                                                color = primaryColor
-                                            )
-                                        }
-                                    }
-                                }
-                            } else {
-                                Text(
-                                    text = "No facilities listed",
-                                    fontSize = 16.sp,
-                                    fontFamily = FontFamily.Default,
-                                    color = Color.Gray
-                                )
-                            }
-                        }
-                    }
+//                    item {
+//                        Column(
+//                            modifier = Modifier.padding(horizontal = HORIZONTAL_PADDING)
+//                        ) {
+//                            Text(
+//                                text = "Facilities",
+//                                fontSize = 20.sp,
+//                                fontWeight = FontWeight.Bold,
+//                                fontFamily = FontFamily.Default
+//                            )
+//
+//                            Spacer(modifier = Modifier.height(8.dp))
+//
+//                            if (!destination.facilities.isNullOrEmpty()) {
+//                                LazyRow(
+//                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+//                                    modifier = Modifier.padding(vertical = 8.dp)
+//                                ) {
+//                                    items(destination.facilities) { facility ->
+//                                        Surface(
+//                                            modifier = Modifier.padding(vertical = 4.dp),
+//                                            shape = RoundedCornerShape(16.dp),
+//                                            color = primaryColor.copy(alpha = 0.1f),
+//                                            tonalElevation = 0.dp
+//                                        ) {
+//                                            Text(
+//                                                text = facility,
+//                                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+//                                                fontSize = 14.sp,
+//                                                fontWeight = FontWeight.Medium,
+//                                                color = primaryColor
+//                                            )
+//                                        }
+//                                    }
+//                                }
+//                            } else {
+//                                Text(
+//                                    text = "No facilities listed",
+//                                    fontSize = 16.sp,
+//                                    fontFamily = FontFamily.Default,
+//                                    color = Color.Gray
+//                                )
+//                            }
+//                        }
+//                    }
 
                     // 分隔线
                     item {
