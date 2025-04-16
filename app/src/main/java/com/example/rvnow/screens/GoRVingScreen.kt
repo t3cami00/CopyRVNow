@@ -382,8 +382,20 @@ fun CountryCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Get flag image URL for the country using a flag API
-    val flagImageUrl = "https://countryflagsapi.com/png/${country.toLowerCase().replace(" ", "%20")}"
+    // 硬编码国旗图片URL（使用flagcdn高质量图片）
+    val flagImageUrl = when (country) {
+        "Sweden" -> "https://flagcdn.com/w640/se.jpg"
+        "Norway" -> "https://flagcdn.com/w640/no.jpg"
+        "Finland" -> "https://flagcdn.com/w640/fi.jpg"
+        "Denmark" -> "https://flagcdn.com/w640/dk.jpg"
+        "Iceland" -> "https://flagcdn.com/w640/is.jpg"
+        "USA" -> "https://flagcdn.com/w640/us.jpg"
+        "Canada" -> "https://flagcdn.com/w640/ca.jpg"
+        "Germany" -> "https://flagcdn.com/w640/de.jpg"
+        "France" -> "https://flagcdn.com/w640/fr.jpg"
+        "Spain" -> "https://flagcdn.com/w640/es.jpg"
+        else -> "https://flagcdn.com/w640/generic.png"
+    }
 
     Card(
         modifier = modifier
@@ -391,53 +403,36 @@ fun CountryCard(
             .height(100.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(CARD_CORNER_RADIUS),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        )
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .border(
-                    width = 1.dp,
-                    color = Color.LightGray,
-                    shape = RoundedCornerShape(CARD_CORNER_RADIUS)
-                )
-                .padding(8.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                // Flag image with proper aspect ratio (3:2)
-                Box(
-                    modifier = Modifier
-                        .width(72.dp)
-                        .height(48.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                ) {
-                    AsyncImage(
-                        model = flagImageUrl,
-                        contentDescription = "$country flag",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.FillBounds
-                    )
-                }
+        Box(modifier = Modifier.fillMaxSize()) {
+            // 国旗背景（填充整个卡片）
+            AsyncImage(
+                model = flagImageUrl,
+                contentDescription = "$country flag",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
 
-                Spacer(modifier = Modifier.height(8.dp))
+            // 半透明遮罩增强文字可读性
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f))
+            )
 
-                // Country name
-                Text(
-                    text = country,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.Default,
-                    color = Color.Black,
-                    textAlign = TextAlign.Center
-                )
-            }
+            Text(
+                text = country,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Default,
+                color = Color.White,
+                textAlign = TextAlign.End,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 8.dp, end = 8.dp)
+            )
+
         }
     }
 }
