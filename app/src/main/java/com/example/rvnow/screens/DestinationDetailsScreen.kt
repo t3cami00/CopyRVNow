@@ -31,7 +31,6 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.rvnow.viewmodels.GoRVingViewModel
 
-// 定义与HomeScreen一致的间距常量
 private val SECTION_SPACING = 24.dp
 private val SECTION_SPACING_SMALL = 16.dp
 private val HORIZONTAL_PADDING = 16.dp
@@ -125,7 +124,6 @@ fun DestinationDetailsScreen(
                                 contentScale = ContentScale.Crop
                             )
 
-                            // 添加半透明渐变覆盖层，使标题更易读
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -136,7 +134,6 @@ fun DestinationDetailsScreen(
                                     )
                             )
 
-                            // 在图片底部添加标题和位置
                             Column(
                                 modifier = Modifier
                                     .align(Alignment.BottomStart)
@@ -169,7 +166,6 @@ fun DestinationDetailsScreen(
                                 }
                             }
 
-                            // 添加评分标签
                             if (destination.rating > 0) {
                                 Box(
                                     modifier = Modifier
@@ -203,7 +199,7 @@ fun DestinationDetailsScreen(
                         }
                     }
 
-                    // 快速信息卡片
+                    // 信息卡片
                     item {
                         Card(
                             modifier = Modifier
@@ -245,7 +241,7 @@ fun DestinationDetailsScreen(
                                     )
                                 }
 
-                                // 最佳访问时间
+                                // 最佳时间
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
@@ -270,7 +266,7 @@ fun DestinationDetailsScreen(
                                     )
                                 }
 
-                                // 停车位数量
+                                // 停车位
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
@@ -332,68 +328,6 @@ fun DestinationDetailsScreen(
                     }
 
                     // 分隔线
-//                    item {
-//                        Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
-//
-//                        Box(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .height(1.dp)
-//                                .padding(horizontal = HORIZONTAL_PADDING)
-//                                .background(Color.LightGray.copy(alpha = 0.5f))
-//                        )
-//
-//                        Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
-//                    }
-
-                    // 设施部分
-//                    item {
-//                        Column(
-//                            modifier = Modifier.padding(horizontal = HORIZONTAL_PADDING)
-//                        ) {
-//                            Text(
-//                                text = "Facilities",
-//                                fontSize = 20.sp,
-//                                fontWeight = FontWeight.Bold,
-//                                fontFamily = FontFamily.Default
-//                            )
-//
-//                            Spacer(modifier = Modifier.height(8.dp))
-//
-//                            if (!destination.facilities.isNullOrEmpty()) {
-//                                LazyRow(
-//                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-//                                    modifier = Modifier.padding(vertical = 8.dp)
-//                                ) {
-//                                    items(destination.facilities) { facility ->
-//                                        Surface(
-//                                            modifier = Modifier.padding(vertical = 4.dp),
-//                                            shape = RoundedCornerShape(16.dp),
-//                                            color = primaryColor.copy(alpha = 0.1f),
-//                                            tonalElevation = 0.dp
-//                                        ) {
-//                                            Text(
-//                                                text = facility,
-//                                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-//                                                fontSize = 14.sp,
-//                                                fontWeight = FontWeight.Medium,
-//                                                color = primaryColor
-//                                            )
-//                                        }
-//                                    }
-//                                }
-//                            } else {
-//                                Text(
-//                                    text = "No facilities listed",
-//                                    fontSize = 16.sp,
-//                                    fontFamily = FontFamily.Default,
-//                                    color = Color.Gray
-//                                )
-//                            }
-//                        }
-//                    }
-
-                    // 分隔线
                     item {
                         Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
 
@@ -408,7 +342,7 @@ fun DestinationDetailsScreen(
                         Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
                     }
 
-                    // 最佳访问时间部分
+                    // 最佳访问时间详情
                     item {
                         Column(
                             modifier = Modifier.padding(HORIZONTAL_PADDING, SECTION_SPACING_SMALL)
@@ -468,7 +402,7 @@ fun DestinationDetailsScreen(
                         Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
                     }
 
-                    // 停车位部分
+                    // 停车位详情
                     item {
                         Column(
                             modifier = Modifier.padding(HORIZONTAL_PADDING, SECTION_SPACING_SMALL)
@@ -513,7 +447,6 @@ fun DestinationDetailsScreen(
                                                 )
                                             }
 
-                                            // 添加分隔线，除了最后一项
                                             if (index < destination.parkingSpots.size - 1) {
                                                 Spacer(modifier = Modifier.height(4.dp))
                                                 Box(
