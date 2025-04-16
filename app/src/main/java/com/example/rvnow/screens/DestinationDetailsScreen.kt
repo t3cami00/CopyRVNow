@@ -15,6 +15,8 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.LocalParking
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -364,20 +366,20 @@ fun DestinationDetailsScreen(
                                 )
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(CARD_CONTENT_PADDING),
-                                    verticalAlignment = Alignment.CenterVertically
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(CARD_CONTENT_PADDING)
                                 ) {
                                     Icon(
                                         Icons.Default.DateRange,
-                                        contentDescription = "Calendar",
+                                        contentDescription = "Best Time",
                                         tint = secondaryColor,
-                                        modifier = Modifier
-                                            .size(32.dp)
-                                            .padding(end = 8.dp)
+                                        modifier = Modifier.size(24.dp)
                                     )
 
+                                    Spacer(modifier = Modifier.width(12.dp))
+
                                     Text(
-                                        text = destination.bestTimeToVisit ?: "No information available",
+                                        text = destination.bestTimeToVisit ?: "Information not available",
                                         fontSize = 16.sp,
                                         fontFamily = FontFamily.Default,
                                         lineHeight = 24.sp
@@ -402,7 +404,7 @@ fun DestinationDetailsScreen(
                         Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
                     }
 
-                    // 停车位详情
+                    // 停车位详情 - 改进版
                     item {
                         Column(
                             modifier = Modifier.padding(HORIZONTAL_PADDING, SECTION_SPACING_SMALL)
@@ -416,51 +418,38 @@ fun DestinationDetailsScreen(
 
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(CARD_CORNER_RADIUS),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = tertiaryColor.copy(alpha = 0.1f)
-                                )
-                            ) {
-                                Column(modifier = Modifier.padding(CARD_CONTENT_PADDING)) {
-                                    if (!destination.parkingSpots.isNullOrEmpty()) {
-                                        destination.parkingSpots.forEachIndexed { index, spot ->
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                modifier = Modifier.padding(vertical = 4.dp)
-                                            ) {
-                                                Icon(
-                                                    Icons.Default.LocalParking,
-                                                    contentDescription = "Parking",
-                                                    tint = tertiaryColor,
-                                                    modifier = Modifier.size(20.dp)
-                                                )
+                            if (!destination.parkingSpots.isNullOrEmpty()) {
+                                LazyRow(
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
+                                ) {
+                                    items(destination.parkingSpots) { spot ->
+                                        ParkingSpotCard(spot, tertiaryColor)
+                                    }
+                                }
+                            } else {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(CARD_CORNER_RADIUS),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = tertiaryColor.copy(alpha = 0.1f)
+                                    )
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(CARD_CONTENT_PADDING)
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Info,
+                                            contentDescription = "No Parking",
+                                            tint = tertiaryColor,
+                                            modifier = Modifier.size(24.dp)
+                                        )
 
-                                                Spacer(modifier = Modifier.width(8.dp))
+                                        Spacer(modifier = Modifier.width(12.dp))
 
-                                                Text(
-                                                    text = spot.toString(),
-                                                    fontSize = 16.sp,
-                                                    fontFamily = FontFamily.Default,
-                                                    lineHeight = 24.sp
-                                                )
-                                            }
-
-                                            if (index < destination.parkingSpots.size - 1) {
-                                                Spacer(modifier = Modifier.height(4.dp))
-                                                Box(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .height(1.dp)
-                                                        .background(Color.LightGray.copy(alpha = 0.5f))
-                                                )
-                                                Spacer(modifier = Modifier.height(4.dp))
-                                            }
-                                        }
-                                    } else {
                                         Text(
-                                            text = "No parking spots listed",
+                                            text = "No parking spots information available",
                                             fontSize = 16.sp,
                                             fontFamily = FontFamily.Default,
                                             color = Color.Gray
@@ -487,6 +476,110 @@ fun DestinationDetailsScreen(
                         fontFamily = FontFamily.Default,
                         fontSize = 16.sp
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ParkingSpotCard(spot: Map<String, Any>, tertiaryColor: Color) {
+    val name = spot["name"]?.toString() ?: "Unnamed Spot"
+    val imageUrl = spot["imageUrl"]?.toString()
+    val coordinates = spot["coordinates"]?.toString()?.replace("{", "")?.replace("}", "")
+
+    // 提取坐标中的纬度和经度
+    val latitude = coordinates?.split(",")?.getOrNull(0)?.split("=")?.getOrNull(1)?.trim()
+    val longitude = coordinates?.split(",")?.getOrNull(1)?.split("=")?.getOrNull(1)?.trim()
+
+    // 格式化坐标显示
+    val formattedLocation = if (latitude != null && longitude != null) {
+        "Lat: $latitude, Long: $longitude"
+    } else {
+        "Location unavailable"
+    }
+
+    Card(
+        modifier = Modifier
+            .width(280.dp),
+        shape = RoundedCornerShape(CARD_CORNER_RADIUS),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Column {
+            // 停车位图片
+            if (!imageUrl.isNullOrEmpty()) {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp)
+                        .clip(RoundedCornerShape(topStart = CARD_CORNER_RADIUS, topEnd = CARD_CORNER_RADIUS)),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp)
+                        .background(tertiaryColor.copy(alpha = 0.2f))
+                        .clip(RoundedCornerShape(topStart = CARD_CORNER_RADIUS, topEnd = CARD_CORNER_RADIUS)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.LocalParking,
+                        contentDescription = "Parking",
+                        tint = tertiaryColor,
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
+            }
+
+            // 停车位信息
+            Column(
+                modifier = Modifier.padding(12.dp)
+            ) {
+                Text(
+                    text = name,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Default
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.Place,
+                        contentDescription = "Location",
+                        tint = tertiaryColor,
+                        modifier = Modifier.size(16.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Text(
+                        text = formattedLocation,
+                        fontSize = 14.sp,
+                        fontFamily = FontFamily.Default,
+                        color = Color.DarkGray
+                    )
+                }
+
+                // 添加其他可能的停车位信息
+                spot.forEach { (key, value) ->
+                    if (key != "name" && key != "imageUrl" && key != "coordinates") {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "$key: $value",
+                            fontSize = 14.sp,
+                            fontFamily = FontFamily.Default,
+                            color = Color.DarkGray
+                        )
+                    }
                 }
             }
         }

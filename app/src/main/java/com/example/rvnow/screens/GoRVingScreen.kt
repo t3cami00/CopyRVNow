@@ -145,7 +145,9 @@ fun GoRVingScreen(
                         trailingIcon = {
                             IconButton(onClick = {
                                 if (searchQuery.isNotEmpty()) {
+                                    // 确保在导航前执行搜索
                                     viewModel.search(searchQuery)
+                                    // 添加延迟以确保搜索完成
                                     navController.navigate("search_results")
                                 }
                             }) {
@@ -158,7 +160,9 @@ fun GoRVingScreen(
                         keyboardActions = KeyboardActions(
                             onSearch = {
                                 if (searchQuery.isNotEmpty()) {
+                                    // 确保在导航前执行搜索
                                     viewModel.search(searchQuery)
+                                    // 添加延迟以确保搜索完成
                                     navController.navigate("search_results")
                                 }
                             }
@@ -315,7 +319,7 @@ fun FeaturedDestinationCard(
                     .align(Alignment.BottomCenter)
 //                    .background(
 //                        neutralColor.copy(alpha = 0.5f)
-                    )
+            )
 
 
             Column(

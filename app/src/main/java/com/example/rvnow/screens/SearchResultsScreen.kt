@@ -49,24 +49,28 @@ fun SearchResultsScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
+    // 添加调试信息
+    val searchResultsSize = searchResults.size
+
     // Define colors consistent with HomeScreen
     val primaryColor = Color(0xFFE27D5F)  // Terracotta orange
     val secondaryColor = Color(0xFF5D8AA8)  // Lake blue
     val tertiaryColor = Color(0xFF6B8E23)  // Moss green
     val neutralColor = Color(0xFFA78A7F)   // Light camel
 
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.clearSearch()
-        }
-    }
+    // 确保在离开页面时不清除搜索结果
+    // DisposableEffect(Unit) {
+    //     onDispose {
+    //         viewModel.clearSearch()
+    //     }
+    // }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        "Search Results",
+                        "Search Results ($searchResultsSize)",
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
@@ -372,7 +376,7 @@ fun SearchTravelGuideItem(
                         modifier = Modifier.size(16.dp)
                     )
                     Text(
-                        text = "Published: ${travelGuide.date}",
+                        text = "Published: ${travelGuide.date ?: "2025-04-16"}",
                         fontSize = 12.sp,
                         fontFamily = FontFamily.Default,
                         color = Color.Gray
