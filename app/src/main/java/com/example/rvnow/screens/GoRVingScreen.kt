@@ -133,7 +133,7 @@ fun GoRVingScreen(
             ) {
                 // Search bar
                 item {
-                    Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
+                    Spacer(modifier = Modifier.height(SECTION_SPACING))
 
                     OutlinedTextField(
                         value = searchQuery,
@@ -179,6 +179,7 @@ fun GoRVingScreen(
                             .fillMaxWidth()
                             .padding(vertical = 12.dp)
                     ) {
+                        Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
                         Text(
                             text = "Featured Destinations",
                             fontSize = 22.sp,
@@ -207,9 +208,13 @@ fun GoRVingScreen(
                     }
                 }
 
+
+
                 // Browse by country
                 item {
                     Column {
+                        Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
+
                         Text(
                             text = "Browse by Country",
                             fontSize = 22.sp,
@@ -226,7 +231,7 @@ fun GoRVingScreen(
 
                         LazyRow(
                             contentPadding = PaddingValues(horizontal = HORIZONTAL_PADDING),
-                            horizontalArrangement = Arrangement.spacedBy(SECTION_SPACING_SMALL))
+                            horizontalArrangement = Arrangement.spacedBy(SECTION_SPACING))
                         {
                             items(countries) { country ->
                                 CountryCard(
@@ -247,6 +252,7 @@ fun GoRVingScreen(
                             .fillMaxWidth()
                             .padding(vertical = 12.dp)
                     ) {
+                        Spacer(modifier = Modifier.height(SECTION_SPACING_SMALL))
                         Text(
                             text = "Travel Guides",
                             fontSize = 22.sp,
@@ -368,6 +374,7 @@ fun FeaturedDestinationCard(
         }
     }
 }
+
 
 @Composable
 fun CountryCard(
