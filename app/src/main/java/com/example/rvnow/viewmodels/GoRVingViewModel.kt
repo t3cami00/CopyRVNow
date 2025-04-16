@@ -169,43 +169,48 @@ class GoRVingViewModel : ViewModel() {
         }
     }
 
-    // 搜索功能
+    // 改进的搜索功能
     fun search(query: String) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
+                val queryLowerCase = query.lowercase().trim()
 
-                // 搜索目的地
-                val destinationsSnapshot = db.collection("rv_destinations")
-                    .whereGreaterThanOrEqualTo("name", query)
-                    .whereLessThanOrEqualTo("name", query + '\uf8ff')
-                    .get()
-                    .await()
+                // 由于Firestore不支持直接的包含查询，我们需要获取所有数据并在客户端进行过滤
 
-                // 搜索旅游攻略
-                val guidesSnapshot = db.collection("rv_travel_guides")
-                    .whereGreaterThanOrEqualTo("title", query)
-                    .whereLessThanOrEqualTo("title", query + '\uf8ff')
-                    .get()
-                    .await()
+                // 获取所有目的地
+                val destinationsSnapshot = db.collection("rv_destinations").get().await()
+                val allDestinations = destinationsSnapshot.documents.mapNotNull { doc ->
+                    val destination = doc.toObject(RVDestination::class.java)
+                    destination?.copy(id = doc.id)
+                }
+
+                // 获取所有旅游攻略
+                val guidesSnapshot = db.collection("rv_travel_guides").get().await()
+                val allGuides = guidesSnapshot.documents.mapNotNull { doc ->
+                    val guide = doc.toObject(RVTravelGuide::class.java)
+                    guide?.copy(id = doc.id)
+                }
 
                 val results = mutableListOf<Any>()
 
-                // 添加目的地结果
-                destinationsSnapshot.documents.forEach { doc ->
-                    val destination = doc.toObject(RVDestination::class.java)
-                    if (destination != null) {
-                        results.add(destination.copy(id = doc.id))
-                    }
+                // 过滤目的地 - 检查name、country和location字段
+                val filteredDestinations = allDestinations.filter { destination ->
+                    destination.name.lowercase().contains(queryLowerCase) ||
+                            destination.country.lowercase().contains(queryLowerCase) ||
+                            destination.location.lowercase().contains(queryLowerCase) ||
+                            destination.description.lowercase().contains(queryLowerCase)
                 }
+                results.addAll(filteredDestinations)
 
-                // 添加旅游攻略结果
-                guidesSnapshot.documents.forEach { doc ->
-                    val guide = doc.toObject(RVTravelGuide::class.java)
-                    if (guide != null) {
-                        results.add(guide.copy(id = doc.id))
-                    }
+                // 过滤旅游攻略 - 检查title和summary字段
+                val filteredGuides = allGuides.filter { guide ->
+                    guide.title.lowercase().contains(queryLowerCase) ||
+                            guide.summary.lowercase().contains(queryLowerCase) ||
+                            guide.content.lowercase().contains(queryLowerCase) ||
+                            guide.tags.any { it.lowercase().contains(queryLowerCase) }
                 }
+                results.addAll(filteredGuides)
 
                 _searchResults.value = results
                 _error.value = null
